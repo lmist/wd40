@@ -21,8 +21,10 @@
     "@tauri-apps/plugin-dialog": "^2",
     "@tauri-apps/plugin-fs": "^2",
     "@tauri-apps/plugin-opener": "^2",
+    "@types/d3-zoom": "^3.0.8",
     "codemirror": "^6",
     "d3": "^7",
+    "d3-zoom": "^3.0.0",
     "markmap-lib": "^0.18",
     "markmap-toolbar": "^0.18",
     "markmap-view": "^0.18"

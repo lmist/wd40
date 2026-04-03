@@ -41,12 +41,18 @@ importers:
       '@tauri-apps/plugin-opener':
         specifier: ^2
         version: 2.5.3
+      '@types/d3-zoom':
+        specifier: ^3.0.8
+        version: 3.0.8
       codemirror:
         specifier: ^6
         version: 6.0.2
       d3:
         specifier: ^7
         version: 7.9.0
+      d3-zoom:
+        specifier: ^3.0.0
+        version: 3.0.0
       markmap-lib:
         specifier: ^0.18
         version: 0.18.12(markmap-common@0.18.9)

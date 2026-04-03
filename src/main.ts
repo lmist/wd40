@@ -1,15 +1,15 @@
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from "@codemirror/view";
-import { EditorState } from "@codemirror/state";
+import { EditorState, Compartment } from "@codemirror/state";
 import { markdown } from "@codemirror/lang-markdown";
 import { defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
-import { vim, Vim } from "@replit/codemirror-vim";
+import { vim, Vim, getCM } from "@replit/codemirror-vim";
 import { Transformer } from "markmap-lib";
 import { Markmap, deriveOptions } from "markmap-view";
 import { zoomTransform } from "d3-zoom";
 import { invoke } from "@tauri-apps/api/core";
-import { oneDark } from "./theme";
+import { oneDark, oneLight, LIGHT_BRANCH_COLORS } from "./theme";
 
 const INITIAL_MD = `# https://docs.oasis.camel-ai.org/introduction
 # Cheng Lou / Pretext
@@ -69,8 +69,8 @@ const INITIAL_MD = `# https://docs.oasis.camel-ai.org/introduction
 ## how do we gracefully load into context by using a graph
 `;
 
-// --- Color palette: muted, harmonious tones for dark bg ---
-const BRANCH_COLORS = [
+// --- Color palettes ---
+const DARK_BRANCH_COLORS = [
   "#7aa2f7", // soft blue
   "#9ece6a", // sage green
   "#e0af68", // warm amber
@@ -81,10 +81,35 @@ const BRANCH_COLORS = [
   "#ff9e64", // peach
 ];
 
+// --- Theme state ---
+function getInitialTheme(): "dark" | "light" {
+  const stored = localStorage.getItem("theme");
+  if (stored === "dark" || stored === "light") return stored;
+  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+}
+
+let currentTheme = getInitialTheme();
+document.documentElement.setAttribute("data-theme", currentTheme);
+
 // --- Markmap setup ---
 const transformer = new Transformer();
 const svgEl = document.getElementById("markmap") as unknown as SVGElement;
 let mm: Markmap;
+
+function getMarkmapOpts() {
+  return deriveOptions({
+    colorFreezeLevel: 2,
+    color: currentTheme === "dark" ? DARK_BRANCH_COLORS : LIGHT_BRANCH_COLORS,
+    initialExpandLevel: -1,
+    paddingX: 16,
+    spacingVertical: 8,
+  });
+}
+
+function applyMarkmapTheme() {
+  svgEl.classList.remove("markmap-dark", "markmap-light");
+  svgEl.classList.add(currentTheme === "dark" ? "markmap-dark" : "markmap-light");
+}
 
 async function updateMarkmap(md: string) {
   let root: any;
@@ -94,17 +119,10 @@ async function updateMarkmap(md: string) {
     // Fallback to JS transformer
     root = transformer.transform(md).root;
   }
-  const opts = deriveOptions({
-    colorFreezeLevel: 2,
-    color: BRANCH_COLORS,
-    initialExpandLevel: -1,
-    paddingX: 16,
-    spacingVertical: 8,
-  });
+  const opts = getMarkmapOpts();
   if (!mm) {
     mm = Markmap.create(svgEl, opts, root);
-    svgEl.classList.add("markmap-dark");
-    // Auto-fit after layout settles
+    applyMarkmapTheme();
     setTimeout(() => mm.fit(), 100);
   } else {
     mm.setData(root, opts);
@@ -128,8 +146,9 @@ const vimModeEl = document.getElementById("vim-mode")!;
 
 // --- Editor setup ---
 const editorPane = document.getElementById("editor-pane")!;
+const themeCompartment = new Compartment();
 
-new EditorView({
+const editor = new EditorView({
   state: EditorState.create({
     doc: INITIAL_MD,
     extensions: [
@@ -140,7 +159,7 @@ new EditorView({
       history(),
       markdown(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-      oneDark,
+      themeCompartment.of(currentTheme === "dark" ? oneDark : oneLight),
       highlightSelectionMatches(),
       keymap.of([
         ...defaultKeymap,
@@ -170,6 +189,71 @@ try {
     vimModeEl.textContent = mode.toUpperCase();
   });
 } catch (_) {}
+
+// --- .vimrc support ---
+const VIMRC_KEY = "vimrc";
+
+function applyVimrc() {
+  const vimrc = localStorage.getItem(VIMRC_KEY) || "";
+  const cm = getCM(editor);
+  if (!cm) return;
+  for (const raw of vimrc.split("\n")) {
+    const line = raw.trim();
+    if (!line || line.startsWith('"')) continue; // skip empty lines and comments
+    try {
+      (Vim as any).handleEx(cm, line);
+    } catch (_) {
+      // silently skip invalid commands
+    }
+  }
+}
+
+// Modal elements
+const vimrcOverlay = document.getElementById("vimrc-overlay")!;
+const vimrcEditor = document.getElementById("vimrc-editor") as HTMLTextAreaElement;
+const vimrcSaveBtn = document.getElementById("vimrc-save")!;
+const vimrcCloseBtn = document.getElementById("vimrc-close")!;
+const vimrcBtn = document.getElementById("btn-vimrc")!;
+
+function openVimrc() {
+  vimrcEditor.value = localStorage.getItem(VIMRC_KEY) || "";
+  vimrcOverlay.classList.remove("hidden");
+  vimrcEditor.focus();
+}
+
+function closeVimrc() {
+  vimrcOverlay.classList.add("hidden");
+  editor.focus();
+}
+
+function saveVimrc() {
+  localStorage.setItem(VIMRC_KEY, vimrcEditor.value);
+  applyVimrc();
+  closeVimrc();
+}
+
+vimrcBtn.addEventListener("click", openVimrc);
+vimrcCloseBtn.addEventListener("click", closeVimrc);
+vimrcSaveBtn.addEventListener("click", saveVimrc);
+vimrcOverlay.addEventListener("click", (e) => {
+  if (e.target === vimrcOverlay) closeVimrc();
+});
+
+// Keyboard: Escape to close modal
+vimrcOverlay.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    e.stopPropagation();
+    closeVimrc();
+  }
+  // Cmd+Enter to save
+  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+    e.preventDefault();
+    saveVimrc();
+  }
+});
+
+// Apply saved vimrc on startup
+applyVimrc();
 
 // --- Initial render ---
 updateMarkmap(INITIAL_MD);
@@ -259,3 +343,31 @@ const debouncedFit = debounce(() => mm?.fit(), 150);
 new ResizeObserver(() => debouncedFit()).observe(
   document.getElementById("mindmap-pane")!
 );
+
+// --- Theme toggle ---
+function setTheme(theme: "dark" | "light") {
+  currentTheme = theme;
+  localStorage.setItem("theme", theme);
+  document.documentElement.setAttribute("data-theme", theme);
+
+  // Swap CodeMirror theme
+  editor.dispatch({
+    effects: themeCompartment.reconfigure(theme === "dark" ? oneDark : oneLight),
+  });
+
+  // Re-render markmap with new colors
+  applyMarkmapTheme();
+  const md = editor.state.doc.toString();
+  updateMarkmap(md);
+}
+
+document.getElementById("btn-theme")!.addEventListener("click", () => {
+  setTheme(currentTheme === "dark" ? "light" : "dark");
+});
+
+// Respect system preference changes
+window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", (e) => {
+  if (!localStorage.getItem("theme")) {
+    setTheme(e.matches ? "light" : "dark");
+  }
+});

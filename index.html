@@ -14,6 +14,12 @@
       <div id="mindmap-pane">
         <svg id="markmap"></svg>
         <div id="toolbar">
+          <button id="btn-theme" title="Toggle light/dark theme">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="8" cy="8" r="3.5"/>
+              <path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/>
+            </svg>
+          </button>
           <button id="btn-fit" title="Fit to view (⌘⇧F)">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
               <rect x="2" y="2" width="12" height="12" rx="2"/>
@@ -48,6 +54,32 @@
     <div id="statusbar">
       <span id="vim-mode">NORMAL</span>
       <span id="file-name">untitled.md</span>
+      <span style="flex:1"></span>
+      <button id="btn-vimrc" title="Edit .vimrc">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M13.5 5.5l-3-3L3 10v3h3l7.5-7.5z"/>
+          <path d="M10.5 2.5l3 3"/>
+        </svg>
+        .vimrc
+      </button>
+    </div>
+
+    <!-- .vimrc settings modal -->
+    <div id="vimrc-overlay" class="vimrc-overlay hidden">
+      <div class="vimrc-modal">
+        <div class="vimrc-header">
+          <span class="vimrc-title">.vimrc</span>
+          <button id="vimrc-close" class="vimrc-close">&times;</button>
+        </div>
+        <textarea id="vimrc-editor" spellcheck="false" placeholder="\" Example vimrc commands:
+\" imap jj <Esc>
+\" set clipboard=unnamed
+\" nmap ; :"></textarea>
+        <div class="vimrc-footer">
+          <span class="vimrc-hint">Applied on save. One ex command per line.</span>
+          <button id="vimrc-save">Save &amp; Apply</button>
+        </div>
+      </div>
     </div>
   </body>
 </html>

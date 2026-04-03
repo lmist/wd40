@@ -163,7 +163,7 @@ html, body {
 
 .cm-editor .cm-gutters {
   background: var(--bg-editor) !important;
-  border-right: 1px solid var(--border) !important;
+  border-right: none !important;
   color: var(--fg-dim) !important;
   min-width: 36px;
 }

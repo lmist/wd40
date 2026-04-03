@@ -7,7 +7,8 @@ import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
 import { vim, Vim, getCM } from "@replit/codemirror-vim";
 import { Transformer } from "markmap-lib";
 import { Markmap, deriveOptions } from "markmap-view";
-import { zoomTransform } from "d3";
+import { zoomTransform } from "d3-zoom";
+import { invoke } from "@tauri-apps/api/core";
 import { oneDark, oneLight, LIGHT_BRANCH_COLORS } from "./theme";
 import { initFonts, setFont, getSavedFont, getFontNames } from "./fonts";
 
@@ -111,8 +112,14 @@ function applyMarkmapTheme() {
   svgEl.classList.add(currentTheme === "dark" ? "markmap-dark" : "markmap-light");
 }
 
-function updateMarkmap(md: string) {
-  const { root } = transformer.transform(md);
+async function updateMarkmap(md: string) {
+  let root: any;
+  try {
+    root = await invoke('parse_markdown', { md });
+  } catch (_) {
+    // Fallback to JS transformer
+    root = transformer.transform(md).root;
+  }
   const opts = getMarkmapOpts();
   if (!mm) {
     mm = Markmap.create(svgEl, opts, root);
@@ -133,7 +140,7 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number): T {
   }) as unknown as T;
 }
 
-const debouncedUpdate = debounce((md: string) => updateMarkmap(md), 200);
+const debouncedUpdate = debounce((md: string) => updateMarkmap(md), 50);
 
 // --- Vim mode indicator ---
 const vimModeEl = document.getElementById("vim-mode")!;
@@ -333,7 +340,8 @@ document.addEventListener("mouseup", () => {
 });
 
 // --- Resize observer for markmap ---
-new ResizeObserver(() => mm?.fit()).observe(
+const debouncedFit = debounce(() => mm?.fit(), 150);
+new ResizeObserver(() => debouncedFit()).observe(
   document.getElementById("mindmap-pane")!
 );
 

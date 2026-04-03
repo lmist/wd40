@@ -154,6 +154,7 @@ html, body {
   flex: 1;
 }
 
+#theme-picker,
 #font-picker {
   background: transparent;
   border: 1px solid var(--border);
@@ -167,18 +168,81 @@ html, body {
   max-width: 160px;
 }
 
+#theme-picker:hover,
 #font-picker:hover {
   border-color: var(--accent);
   color: var(--fg);
 }
 
+#theme-picker:focus,
 #font-picker:focus {
   border-color: var(--accent);
 }
 
+#theme-picker option,
 #font-picker option {
   background: var(--bg);
   color: var(--fg);
+}
+
+/* Heading markers */
+.cm-heading-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono-font);
+  font-weight: 700;
+  border-radius: 4px;
+  margin-right: 6px;
+  vertical-align: baseline;
+  line-height: 1;
+  letter-spacing: 0.3px;
+}
+
+.cm-heading-marker-1 {
+  font-size: 11px;
+  padding: 2px 6px;
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.cm-heading-marker-2 {
+  font-size: 10px;
+  padding: 2px 5px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid currentColor;
+}
+
+.cm-heading-marker-3 {
+  font-size: 9px;
+  padding: 1px 4px;
+  background: var(--accent-dim);
+  color: var(--fg-dim);
+}
+
+.cm-heading-marker-4 {
+  font-size: 8px;
+  padding: 1px 4px;
+  background: transparent;
+  color: var(--fg-dim);
+  opacity: 0.7;
+}
+
+.cm-heading-marker-5 {
+  font-size: 8px;
+  padding: 1px 3px;
+  background: transparent;
+  color: var(--fg-dim);
+  opacity: 0.5;
+}
+
+.cm-heading-marker-6 {
+  font-size: 7px;
+  padding: 1px 3px;
+  background: transparent;
+  color: var(--fg-dim);
+  opacity: 0.4;
 }
 
 /* CodeMirror */

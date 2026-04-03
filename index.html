@@ -54,7 +54,8 @@
     <div id="statusbar">
       <span id="vim-mode">NORMAL</span>
       <span id="file-name">untitled.md</span>
-      <span style="flex:1"></span>
+      <span class="statusbar-spacer"></span>
+      <select id="font-picker" title="Monospace font"></select>
       <button id="btn-vimrc" title="Edit .vimrc">
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M13.5 5.5l-3-3L3 10v3h3l7.5-7.5z"/>
@@ -71,10 +72,7 @@
           <span class="vimrc-title">.vimrc</span>
           <button id="vimrc-close" class="vimrc-close">&times;</button>
         </div>
-        <textarea id="vimrc-editor" spellcheck="false" placeholder="\" Example vimrc commands:
-\" imap jj <Esc>
-\" set clipboard=unnamed
-\" nmap ; :"></textarea>
+        <textarea id="vimrc-editor" spellcheck="false" placeholder="&quot; Example vimrc commands:&#10;&quot; imap jj &lt;Esc&gt;&#10;&quot; set clipboard=unnamed&#10;&quot; nmap ; :"></textarea>
         <div class="vimrc-footer">
           <span class="vimrc-hint">Applied on save. One ex command per line.</span>
           <button id="vimrc-save">Save &amp; Apply</button>

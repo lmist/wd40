@@ -9,6 +9,7 @@ import { Transformer } from "markmap-lib";
 import { Markmap, deriveOptions } from "markmap-view";
 import { zoomTransform } from "d3";
 import { oneDark, oneLight, LIGHT_BRANCH_COLORS } from "./theme";
+import { initFonts, setFont, getSavedFont, getFontNames } from "./fonts";
 
 const INITIAL_MD = `# https://docs.oasis.camel-ai.org/introduction
 # Cheng Lou / Pretext
@@ -363,3 +364,22 @@ window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", (e
     setTheme(e.matches ? "light" : "dark");
   }
 });
+
+// --- Font picker ---
+const fontPicker = document.getElementById("font-picker") as HTMLSelectElement;
+const savedFont = getSavedFont();
+
+for (const name of getFontNames()) {
+  const opt = document.createElement("option");
+  opt.value = name;
+  opt.textContent = name;
+  if (name === savedFont) opt.selected = true;
+  fontPicker.appendChild(opt);
+}
+
+fontPicker.addEventListener("change", () => {
+  setFont(fontPicker.value);
+});
+
+// Load saved font on startup
+initFonts();

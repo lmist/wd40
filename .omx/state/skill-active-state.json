@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "active": true,
+  "skill": "ultrawork",
+  "keyword": "parallel",
+  "phase": "planning",
+  "activated_at": "2026-04-03T07:47:47.492Z",
+  "updated_at": "2026-04-03T07:58:34.778Z",
+  "source": "keyword-detector",
+  "session_id": "",
+  "thread_id": "019d5252-ff67-77f3-83fb-d2e8284c41ed",
+  "turn_id": "019d5253-0353-74f2-95b0-7b23f969f839",
+  "iteration": 9,
+  "last_turn_at": "2026-04-03T11:08:08.175Z"
+}

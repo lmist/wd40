@@ -72,14 +72,14 @@ const INITIAL_MD = `# https://docs.oasis.camel-ai.org/introduction
 
 // --- Color palettes ---
 const DARK_BRANCH_COLORS = [
-  "#7aa2f7", // soft blue
-  "#9ece6a", // sage green
-  "#e0af68", // warm amber
-  "#bb9af7", // soft purple
-  "#7dcfff", // sky cyan
-  "#f7768e", // soft coral
-  "#73daca", // teal
-  "#ff9e64", // peach
+  "#e09050", // amber
+  "#8cc265", // green
+  "#6bafbd", // teal
+  "#c49be0", // purple
+  "#e0b854", // gold
+  "#e06868", // coral
+  "#5cb8c8", // cyan
+  "#e08890", // pink
 ];
 
 // --- Theme state ---

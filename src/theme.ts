@@ -3,41 +3,41 @@ import { Extension } from "@codemirror/state";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 
-// Tokyo Night palette
-const blue = "#7aa2f7",
-  purple = "#bb9af7",
-  cyan = "#7dcfff",
-  green = "#9ece6a",
-  orange = "#ff9e64",
-  yellow = "#e0af68",
-  red = "#f7768e",
-  fg = "#c0caf5",
-  comment = "#565f89",
-  bg = "#13131a",
-  surface = "#1a1b26",
-  border = "#1f2335";
+// Warm dark palette — richer, more saturated
+const blue = "#6bafbd",
+  purple = "#c49be0",
+  cyan = "#5cb8c8",
+  green = "#8cc265",
+  orange = "#e09050",
+  yellow = "#e0b854",
+  red = "#e06868",
+  fg = "#e8e6e3",
+  comment = "#6a6a68",
+  bg = "#17171a",
+  surface = "#1a1a1c",
+  border = "rgba(255, 255, 255, 0.07)";
 
 const darkTheme = EditorView.theme(
   {
     "&": { color: fg, backgroundColor: bg },
-    ".cm-content": { caretColor: blue },
-    ".cm-cursor, .cm-dropCursor": { borderLeftColor: blue },
+    ".cm-content": { caretColor: orange },
+    ".cm-cursor, .cm-dropCursor": { borderLeftColor: orange },
     "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
-      { backgroundColor: "rgba(122, 162, 247, 0.18)" },
+      { backgroundColor: "rgba(224, 144, 80, 0.16)" },
     ".cm-panels": { backgroundColor: bg, color: fg },
     ".cm-panels.cm-panels-top": { borderBottom: `1px solid ${border}` },
     ".cm-panels.cm-panels-bottom": { borderTop: `1px solid ${border}` },
     ".cm-searchMatch": {
-      backgroundColor: "rgba(122, 162, 247, 0.12)",
-      outline: "1px solid rgba(122, 162, 247, 0.25)",
+      backgroundColor: "rgba(224, 144, 80, 0.12)",
+      outline: "1px solid rgba(224, 144, 80, 0.25)",
     },
     ".cm-searchMatch.cm-searchMatch-selected": {
-      backgroundColor: "rgba(122, 162, 247, 0.25)",
+      backgroundColor: "rgba(224, 144, 80, 0.25)",
     },
-    ".cm-activeLine": { backgroundColor: "rgba(122, 162, 247, 0.06)" },
-    ".cm-selectionMatch": { backgroundColor: "rgba(122, 162, 247, 0.08)" },
+    ".cm-activeLine": { backgroundColor: "rgba(224, 144, 80, 0.06)" },
+    ".cm-selectionMatch": { backgroundColor: "rgba(224, 144, 80, 0.08)" },
     "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {
-      backgroundColor: "rgba(122, 162, 247, 0.18)",
+      backgroundColor: "rgba(224, 144, 80, 0.18)",
     },
     ".cm-gutters": {
       backgroundColor: bg,
@@ -60,7 +60,7 @@ const darkTheme = EditorView.theme(
       borderBottomColor: surface,
     },
     ".cm-tooltip-autocomplete": {
-      "& > ul > li[aria-selected]": { backgroundColor: "rgba(122, 162, 247, 0.12)" },
+      "& > ul > li[aria-selected]": { backgroundColor: "rgba(224, 144, 80, 0.12)" },
     },
   },
   { dark: true }
@@ -79,7 +79,7 @@ const darkHighlightStyle = HighlightStyle.define([
   { tag: t.emphasis, fontStyle: "italic" },
   { tag: t.strikethrough, textDecoration: "line-through" },
   { tag: t.link, color: cyan, textDecoration: "underline" },
-  { tag: t.heading, fontWeight: "bold", color: blue },
+  { tag: t.heading, fontWeight: "bold", color: yellow },
   { tag: [t.atom, t.bool, t.special(t.variableName)], color: orange },
   { tag: [t.processingInstruction, t.string, t.inserted], color: green },
   { tag: t.invalid, color: red },
@@ -87,41 +87,41 @@ const darkHighlightStyle = HighlightStyle.define([
 
 export const oneDark: Extension = [darkTheme, syntaxHighlighting(darkHighlightStyle)];
 
-// --- Light theme (Tokyo Night Day) ---
-const lBlue = "#2e7de9",
+// --- Light theme (warm paper, richer tones) ---
+const lBlue = "#2878a8",
   lPurple = "#7847bd",
-  lCyan = "#007197",
-  lGreen = "#587539",
-  lOrange = "#b15c00",
-  lYellow = "#8c6c3e",
-  lRed = "#f52a65",
-  lFg = "#343b58",
-  lComment = "#9699a3",
-  lBg = "#ffffff",
-  lSurface = "#f0f0f3",
-  lBorder = "#d8dae5";
+  lCyan = "#1a7a8a",
+  lGreen = "#4a8030",
+  lOrange = "#c4652a",
+  lYellow = "#9a7028",
+  lRed = "#c4453a",
+  lFg = "#1a1a1a",
+  lComment = "#a0a09e",
+  lBg = "#fdfcfa",
+  lSurface = "#f5f4f1",
+  lBorder = "rgba(0, 0, 0, 0.07)";
 
 const lightTheme = EditorView.theme(
   {
     "&": { color: lFg, backgroundColor: lBg },
-    ".cm-content": { caretColor: lBlue },
-    ".cm-cursor, .cm-dropCursor": { borderLeftColor: lBlue },
+    ".cm-content": { caretColor: lOrange },
+    ".cm-cursor, .cm-dropCursor": { borderLeftColor: lOrange },
     "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
-      { backgroundColor: "rgba(46, 125, 233, 0.15)" },
+      { backgroundColor: "rgba(196, 101, 42, 0.14)" },
     ".cm-panels": { backgroundColor: lBg, color: lFg },
     ".cm-panels.cm-panels-top": { borderBottom: `1px solid ${lBorder}` },
     ".cm-panels.cm-panels-bottom": { borderTop: `1px solid ${lBorder}` },
     ".cm-searchMatch": {
-      backgroundColor: "rgba(46, 125, 233, 0.1)",
-      outline: "1px solid rgba(46, 125, 233, 0.25)",
+      backgroundColor: "rgba(196, 101, 42, 0.10)",
+      outline: "1px solid rgba(196, 101, 42, 0.25)",
     },
     ".cm-searchMatch.cm-searchMatch-selected": {
-      backgroundColor: "rgba(46, 125, 233, 0.2)",
+      backgroundColor: "rgba(196, 101, 42, 0.20)",
     },
-    ".cm-activeLine": { backgroundColor: "rgba(46, 125, 233, 0.05)" },
-    ".cm-selectionMatch": { backgroundColor: "rgba(46, 125, 233, 0.08)" },
+    ".cm-activeLine": { backgroundColor: "rgba(196, 101, 42, 0.05)" },
+    ".cm-selectionMatch": { backgroundColor: "rgba(196, 101, 42, 0.08)" },
     "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {
-      backgroundColor: "rgba(46, 125, 233, 0.15)",
+      backgroundColor: "rgba(196, 101, 42, 0.15)",
     },
     ".cm-gutters": {
       backgroundColor: lBg,
@@ -144,7 +144,7 @@ const lightTheme = EditorView.theme(
       borderBottomColor: lSurface,
     },
     ".cm-tooltip-autocomplete": {
-      "& > ul > li[aria-selected]": { backgroundColor: "rgba(46, 125, 233, 0.1)" },
+      "& > ul > li[aria-selected]": { backgroundColor: "rgba(196, 101, 42, 0.10)" },
     },
   },
   { dark: false }
@@ -163,7 +163,7 @@ const lightHighlightStyle = HighlightStyle.define([
   { tag: t.emphasis, fontStyle: "italic" },
   { tag: t.strikethrough, textDecoration: "line-through" },
   { tag: t.link, color: lCyan, textDecoration: "underline" },
-  { tag: t.heading, fontWeight: "bold", color: lBlue },
+  { tag: t.heading, fontWeight: "bold", color: lYellow },
   { tag: [t.atom, t.bool, t.special(t.variableName)], color: lOrange },
   { tag: [t.processingInstruction, t.string, t.inserted], color: lGreen },
   { tag: t.invalid, color: lRed },
@@ -171,14 +171,14 @@ const lightHighlightStyle = HighlightStyle.define([
 
 export const oneLight: Extension = [lightTheme, syntaxHighlighting(lightHighlightStyle)];
 
-// Light branch colors (saturated for white bg)
+// Light branch colors (saturated, distinct)
 export const LIGHT_BRANCH_COLORS = [
-  "#2e7de9", // blue
-  "#587539", // green
-  "#b15c00", // amber
+  "#c4652a", // burnt sienna
+  "#4a8030", // forest green
+  "#2878a8", // ocean blue
   "#7847bd", // purple
-  "#007197", // cyan
-  "#f52a65", // coral
-  "#118c74", // teal
-  "#d76f00", // peach
+  "#1a7a8a", // teal
+  "#c4453a", // warm red
+  "#9a7028", // gold
+  "#b05098", // magenta
 ];

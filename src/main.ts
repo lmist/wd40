@@ -12,6 +12,64 @@ import { invoke } from "@tauri-apps/api/core";
 import { oneDark, oneLight, LIGHT_BRANCH_COLORS } from "./theme";
 import { initFonts, setFont, getSavedFont, getFontNames } from "./fonts";
 
+// --- Moby-style name generator ---
+const ADJECTIVES = [
+  "admiring", "adoring", "angry", "blissful", "bold", "boring", "brave",
+  "busy", "charming", "clever", "cool", "cranky", "dazzling", "determined",
+  "dreamy", "eager", "ecstatic", "elastic", "elated", "elegant", "epic",
+  "exciting", "fervent", "festive", "focused", "friendly", "frosty", "funny",
+  "gallant", "gifted", "goofy", "gracious", "happy", "hopeful", "hungry",
+  "infallible", "inspiring", "jolly", "keen", "kind", "laughing", "loving",
+  "lucid", "magical", "modest", "musing", "mystifying", "naughty", "nervous",
+  "nice", "nifty", "nostalgic", "objective", "optimistic", "peaceful",
+  "pedantic", "pensive", "practical", "priceless", "quirky", "quizzical",
+  "recursing", "relaxed", "reverent", "romantic", "serene", "sharp", "silly",
+  "sleepy", "stoic", "suspicious", "sweet", "tender", "thirsty", "trusting",
+  "unruffled", "upbeat", "vibrant", "vigilant", "vigorous", "wizardly",
+  "wonderful", "xenodochial", "youthful", "zealous", "zen",
+];
+
+const SCIENTISTS = [
+  "agnesi", "albattani", "archimedes", "babbage", "banach", "bell", "benz",
+  "bhabha", "blackwell", "bohr", "booth", "bose", "burnell", "cannon",
+  "carson", "cerf", "chatelet", "curie", "darwin", "davinci", "diffie",
+  "dijkstra", "driscoll", "edison", "einstein", "elion", "euler", "fermat",
+  "fermi", "feynman", "franklin", "gagarin", "galileo", "gates", "goldberg",
+  "goodall", "hawking", "heisenberg", "hopper", "hypatia", "jackson",
+  "jennings", "joliot", "kalam", "kepler", "kilby", "knuth", "lamport",
+  "leakey", "leavitt", "liskov", "lovelace", "matsumoto", "mayer",
+  "mccarthy", "meitner", "mendel", "mirzakhani", "morse", "nash", "neumann",
+  "newton", "nightingale", "nobel", "noether", "noyce", "panini", "pascal",
+  "pasteur", "payne", "perlman", "pike", "poincare", "ramanujan", "ride",
+  "ritchie", "roentgen", "rosalind", "rubin", "saha", "sammet", "shannon",
+  "shaw", "shirley", "sinoussi", "stonebraker", "sutherland", "swartz",
+  "tesla", "thompson", "torvalds", "turing", "villani", "wescoff", "wiles",
+  "williams", "wing", "wozniak", "wright", "yalow", "yonath",
+];
+
+function generateTabName(): string {
+  const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+  const sci = SCIENTISTS[Math.floor(Math.random() * SCIENTISTS.length)];
+  return `${adj}_${sci}`;
+}
+
+function uniqueTabName(existing: string[]): string {
+  const set = new Set(existing);
+  let name: string;
+  do { name = generateTabName(); } while (set.has(name));
+  return name;
+}
+
+// --- Tab system ---
+interface Tab {
+  id: string;
+  name: string;
+  content: string;
+}
+
+let tabs: Tab[] = [];
+let activeTabId = "";
+
 const INITIAL_MD = `# https://docs.oasis.camel-ai.org/introduction
 # Cheng Lou / Pretext
 # opencli
@@ -190,6 +248,185 @@ try {
     vimModeEl.textContent = mode.toUpperCase();
   });
 } catch (_) {}
+
+// --- Tab bar rendering ---
+const tabBar = document.getElementById("tab-bar")!;
+const fileNameEl = document.getElementById("file-name")!;
+
+function renderTabBar() {
+  tabBar.innerHTML = "";
+  for (const tab of tabs) {
+    const btn = document.createElement("button");
+    btn.textContent = tab.name;
+    if (tab.id === activeTabId) btn.classList.add("active");
+    btn.addEventListener("click", () => switchTab(tab.id));
+    tabBar.appendChild(btn);
+  }
+}
+
+function switchTab(id: string) {
+  if (id === activeTabId) return;
+  // Save current content
+  const current = tabs.find(t => t.id === activeTabId);
+  if (current) current.content = editor.state.doc.toString();
+  // Load target
+  const target = tabs.find(t => t.id === id);
+  if (!target) return;
+  activeTabId = id;
+  editor.dispatch({
+    changes: { from: 0, to: editor.state.doc.length, insert: target.content },
+  });
+  updateMarkmap(target.content);
+  fileNameEl.textContent = target.name;
+  renderTabBar();
+  editor.focus();
+}
+
+function createNewTab() {
+  // Save current content first
+  const current = tabs.find(t => t.id === activeTabId);
+  if (current) current.content = editor.state.doc.toString();
+  const name = uniqueTabName(tabs.map(t => t.name));
+  const tab: Tab = { id: crypto.randomUUID(), name, content: "# " + name + "\n" };
+  tabs.push(tab);
+  activeTabId = tab.id;
+  editor.dispatch({
+    changes: { from: 0, to: editor.state.doc.length, insert: tab.content },
+  });
+  updateMarkmap(tab.content);
+  fileNameEl.textContent = tab.name;
+  renderTabBar();
+  editor.focus();
+}
+
+// Initialize first tab
+const firstTab: Tab = { id: crypto.randomUUID(), name: uniqueTabName([]), content: INITIAL_MD };
+tabs.push(firstTab);
+activeTabId = firstTab.id;
+fileNameEl.textContent = firstTab.name;
+renderTabBar();
+
+// --- Active pane tracking ---
+let activePane: "editor" | "mindmap" = "editor";
+const mindmapPane = document.getElementById("mindmap-pane")!;
+
+function setActivePane(pane: "editor" | "mindmap") {
+  activePane = pane;
+  editorPane.classList.toggle("pane-active", pane === "editor");
+  mindmapPane.classList.toggle("pane-active", pane === "mindmap");
+}
+
+editorPane.addEventListener("mousedown", () => setActivePane("editor"));
+mindmapPane.addEventListener("mousedown", () => setActivePane("mindmap"));
+setActivePane("editor"); // default
+
+// --- Pane management ---
+type PaneState = "both" | "editor" | "mindmap";
+let paneState: PaneState = "both";
+const dividerEl = document.getElementById("divider")!;
+let savedEditorWidth = "";
+
+function toggleFocusPane() {
+  if (paneState === "both") {
+    // Save current width for restore
+    savedEditorWidth = editorPane.style.width || "38%";
+    if (activePane === "editor") {
+      mindmapPane.style.display = "none";
+      dividerEl.style.display = "none";
+      editorPane.style.width = "100%";
+      paneState = "editor";
+    } else {
+      editorPane.style.display = "none";
+      dividerEl.style.display = "none";
+      paneState = "mindmap";
+    }
+  } else {
+    // Restore both
+    editorPane.style.display = "";
+    editorPane.style.width = savedEditorWidth;
+    dividerEl.style.display = "";
+    mindmapPane.style.display = "";
+    paneState = "both";
+    editor.focus();
+  }
+  setTimeout(() => mm?.fit(), 100);
+}
+
+function balancePanes() {
+  if (paneState !== "both") {
+    editorPane.style.display = "";
+    dividerEl.style.display = "";
+    mindmapPane.style.display = "";
+    paneState = "both";
+  }
+  editorPane.style.width = "50%";
+  setTimeout(() => mm?.fit(), 100);
+}
+
+// --- Resize mode ---
+const resizeBadge = document.getElementById("resize-badge")!;
+let resizeModeActive = false;
+let resizeHandler: ((e: KeyboardEvent) => void) | null = null;
+
+function exitResizeMode() {
+  if (!resizeModeActive) return;
+  resizeModeActive = false;
+  resizeBadge.classList.remove("visible");
+  if (resizeHandler) {
+    document.removeEventListener("keydown", resizeHandler, true);
+    resizeHandler = null;
+  }
+  editor.focus();
+}
+
+function resizeEditorBy(delta: number) {
+  if (paneState !== "both") return;
+  const appWidth = document.getElementById("app")!.clientWidth;
+  const currentWidth = editorPane.offsetWidth;
+  const newWidth = Math.max(200, Math.min(currentWidth + delta, appWidth - 200));
+  editorPane.style.width = `${newWidth}px`;
+  setTimeout(() => mm?.fit(), 50);
+}
+
+function enterResizeMode(initialDelta: number) {
+  if (paneState !== "both") return;
+  resizeEditorBy(initialDelta);
+  if (resizeModeActive) return; // already in resize mode
+  resizeModeActive = true;
+  resizeBadge.classList.add("visible");
+
+  resizeHandler = (e: KeyboardEvent) => {
+    if (e.key === "h") {
+      e.preventDefault();
+      e.stopPropagation();
+      resizeEditorBy(-60);
+    } else if (e.key === "l") {
+      e.preventDefault();
+      e.stopPropagation();
+      resizeEditorBy(60);
+    } else {
+      // Any other key exits resize mode
+      e.stopPropagation();
+      exitResizeMode();
+      // Don't prevent default for Escape so vim can process it
+      if (e.key !== "Escape") e.preventDefault();
+    }
+  };
+  document.addEventListener("keydown", resizeHandler, true);
+}
+
+// --- Vim keybindings (backtick leader) ---
+(Vim as any).defineAction("newTab", () => createNewTab());
+(Vim as any).defineAction("focusPane", () => toggleFocusPane());
+(Vim as any).defineAction("balancePanes", () => balancePanes());
+(Vim as any).defineAction("shrinkPane", () => enterResizeMode(-60));
+(Vim as any).defineAction("expandPane", () => enterResizeMode(60));
+
+(Vim as any).mapCommand("`c", "action", "newTab", {}, { context: "normal" });
+(Vim as any).mapCommand("`z", "action", "focusPane", {}, { context: "normal" });
+(Vim as any).mapCommand("`b", "action", "balancePanes", {}, { context: "normal" });
+(Vim as any).mapCommand("`h", "action", "shrinkPane", {}, { context: "normal" });
+(Vim as any).mapCommand("`l", "action", "expandPane", {}, { context: "normal" });
 
 // --- .vimrc support ---
 const VIMRC_KEY = "vimrc";

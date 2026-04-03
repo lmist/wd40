@@ -1,12 +1,12 @@
 [package]
-name = "markmap-desktop"
+name = "wd40"
 version = "0.1.0"
-description = "Markmap - Markdown Mindmap Desktop App"
+description = "wd40 - Markdown Mindmap Desktop App"
 authors = ["you"]
 edition = "2021"
 
 [lib]
-name = "markmap_desktop_lib"
+name = "wd40_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

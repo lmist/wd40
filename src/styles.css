@@ -1,4 +1,9 @@
 :root {
+  --divider-width: 3px;
+}
+
+/* Dark theme (default) */
+:root, [data-theme="dark"] {
   --bg: #1a1b26;
   --bg-surface: #16161e;
   --bg-editor: #13131a;
@@ -8,7 +13,19 @@
   --accent-dim: rgba(122, 162, 247, 0.15);
   --border: #1f2335;
   --statusbar-bg: #13131a;
-  --divider-width: 3px;
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --bg: #f0f0f3;
+  --bg-surface: #fafafa;
+  --bg-editor: #ffffff;
+  --fg: #343b58;
+  --fg-dim: #9699a3;
+  --accent: #2e7de9;
+  --accent-dim: rgba(46, 125, 233, 0.1);
+  --border: #d8dae5;
+  --statusbar-bg: #e8e8ec;
 }
 
 * {
@@ -119,7 +136,7 @@ html, body {
 
 #vim-mode {
   background: var(--accent);
-  color: var(--bg);
+  color: #ffffff;
   padding: 1px 8px;
   border-radius: 3px;
   font-weight: 600;
@@ -177,6 +194,10 @@ html, body {
   border: none !important;
 }
 
+[data-theme="light"] .cm-fat-cursor .cm-cursor {
+  background: rgba(46, 125, 233, 0.5) !important;
+}
+
 .cm-vim-panel {
   background: var(--statusbar-bg) !important;
   color: var(--fg) !important;
@@ -203,6 +224,18 @@ html, body {
   --markmap-font: 400 15px/22px "Inter", -apple-system, system-ui, sans-serif;
 }
 
+/* Markmap light theme overrides */
+.markmap-light .markmap {
+  --markmap-text-color: #343b58;
+  --markmap-a-color: #2e7de9;
+  --markmap-a-hover-color: #1a6ad4;
+  --markmap-code-bg: #e8e8ec;
+  --markmap-code-color: #343b58;
+  --markmap-circle-open-bg: #ffffff;
+  --markmap-highlight-bg: rgba(150, 120, 50, 0.15);
+  --markmap-font: 400 15px/22px "Inter", -apple-system, system-ui, sans-serif;
+}
+
 /* Markmap node & link styling */
 #mindmap-pane .markmap-node circle {
   stroke-width: 1.5px;
@@ -217,11 +250,11 @@ html, body {
   font-family: "Inter", -apple-system, system-ui, sans-serif !important;
   font-weight: 400;
   font-size: 14px;
-  fill: #e2e8f8 !important;
+  fill: var(--fg) !important;
 }
 
 #mindmap-pane .markmap-foreign {
-  color: #e2e8f8;
+  color: var(--fg);
 }
 
 #mindmap-pane .markmap-node > circle {
@@ -233,4 +266,13 @@ html, body {
 #mindmap-pane .markmap-node,
 #mindmap-pane .markmap-link {
   transition: opacity 0.2s ease;
+}
+
+/* Theme toggle button */
+#btn-theme {
+  position: relative;
+}
+
+#btn-theme svg {
+  transition: transform 0.3s ease;
 }

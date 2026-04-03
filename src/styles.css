@@ -1,32 +1,47 @@
 :root {
-  --divider-width: 3px;
+  --divider-width: 1px;
   --mono-font: "SF Mono", "Menlo", monospace;
+  --ui-font: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
 
-/* Dark theme (default) */
+/* Dark theme (default) — warm with depth */
 :root, [data-theme="dark"] {
-  --bg: #1a1b26;
-  --bg-surface: #16161e;
-  --bg-editor: #13131a;
-  --fg: #c0caf5;
-  --fg-dim: #565f89;
-  --accent: #7aa2f7;
-  --accent-dim: rgba(122, 162, 247, 0.15);
-  --border: #1f2335;
-  --statusbar-bg: #13131a;
+  --bg: #1a1a1c;
+  --bg-surface: #202022;
+  --bg-editor: #17171a;
+  --fg: #e8e6e3;
+  --fg-dim: #555553;
+  --fg-secondary: #8a8a88;
+  --accent: #e09050;
+  --accent-dim: rgba(224, 144, 80, 0.10);
+  --accent-hover: rgba(224, 144, 80, 0.18);
+  --accent-secondary: #6bafbd;
+  --border: rgba(255, 255, 255, 0.07);
+  --statusbar-bg: #17171a;
+  --toolbar-bg: rgba(32, 32, 34, 0.88);
+  --toolbar-border: rgba(255, 255, 255, 0.08);
+  --mode-bg: rgba(224, 144, 80, 0.10);
+  --mode-fg: #e09050;
 }
 
-/* Light theme */
+/* Light theme — warm paper with real color */
 [data-theme="light"] {
-  --bg: #f0f0f3;
-  --bg-surface: #fafafa;
-  --bg-editor: #ffffff;
-  --fg: #343b58;
-  --fg-dim: #9699a3;
-  --accent: #2e7de9;
-  --accent-dim: rgba(46, 125, 233, 0.1);
-  --border: #d8dae5;
-  --statusbar-bg: #e8e8ec;
+  --bg: #f5f4f1;
+  --bg-surface: #f0efec;
+  --bg-editor: #fdfcfa;
+  --fg: #1a1a1a;
+  --fg-dim: #a8a8a6;
+  --fg-secondary: #6e6e6c;
+  --accent: #c4652a;
+  --accent-dim: rgba(196, 101, 42, 0.07);
+  --accent-hover: rgba(196, 101, 42, 0.14);
+  --accent-secondary: #2878a8;
+  --border: rgba(0, 0, 0, 0.07);
+  --statusbar-bg: #eae9e5;
+  --toolbar-bg: rgba(250, 249, 247, 0.92);
+  --toolbar-border: rgba(0, 0, 0, 0.06);
+  --mode-bg: rgba(196, 101, 42, 0.08);
+  --mode-fg: #c4652a;
 }
 
 * {
@@ -40,14 +55,14 @@ html, body {
   overflow: hidden;
   background: var(--bg);
   color: var(--fg);
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: var(--ui-font);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 #app {
   display: flex;
-  height: calc(100% - 26px);
+  height: calc(100% - 32px);
   padding-top: 28px;
 }
 
@@ -65,6 +80,14 @@ html, body {
   background: var(--border);
   flex-shrink: 0;
   transition: background 0.2s ease;
+  position: relative;
+}
+
+#divider::after {
+  content: '';
+  position: absolute;
+  inset: 0 -4px;
+  cursor: col-resize;
 }
 
 #divider:hover,
@@ -85,23 +108,30 @@ html, body {
   height: 100%;
 }
 
-/* Toolbar */
+/* Toolbar — floating pill */
 #toolbar {
   position: absolute;
-  bottom: 16px;
-  right: 16px;
+  bottom: 20px;
+  right: 20px;
   display: flex;
-  gap: 4px;
+  gap: 2px;
+  padding: 4px;
+  background: var(--toolbar-bg);
+  border: 1px solid var(--toolbar-border);
+  border-radius: 14px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   z-index: 10;
 }
 
 #toolbar button {
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg);
-  color: var(--fg-dim);
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--fg-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -112,8 +142,7 @@ html, body {
 
 #toolbar button:hover {
   background: var(--accent-dim);
-  color: var(--fg);
-  border-color: rgba(122, 162, 247, 0.3);
+  color: var(--accent);
 }
 
 #toolbar button:active {
@@ -122,32 +151,33 @@ html, body {
 
 /* Status bar */
 #statusbar {
-  height: 26px;
+  height: 32px;
   background: var(--statusbar-bg);
   border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
-  padding: 0 12px;
-  gap: 12px;
-  font-size: 11px;
-  font-family: var(--mono-font);
+  padding: 0 14px;
+  gap: 10px;
+  font-size: 12px;
+  font-family: var(--ui-font);
   color: var(--fg-dim);
   -webkit-app-region: no-drag;
 }
 
 #vim-mode {
-  background: var(--accent);
-  color: #ffffff;
-  padding: 1px 8px;
-  border-radius: 3px;
+  background: var(--mode-bg);
+  color: var(--mode-fg);
+  padding: 2px 8px;
+  border-radius: 6px;
   font-weight: 600;
   font-size: 10px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   text-transform: uppercase;
+  font-family: var(--ui-font);
 }
 
 #file-name {
-  color: var(--fg-dim);
+  color: var(--fg-secondary);
 }
 
 .statusbar-spacer {
@@ -157,19 +187,24 @@ html, body {
 #font-picker {
   background: transparent;
   border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--fg-dim);
-  font-family: var(--mono-font);
-  font-size: 10px;
-  padding: 1px 4px;
+  border-radius: 6px;
+  color: var(--fg-secondary);
+  font-family: var(--ui-font);
+  font-size: 11px;
+  padding: 2px 8px;
   cursor: pointer;
   outline: none;
-  max-width: 160px;
+  max-width: 140px;
+  transition: all 0.2s ease;
 }
 
 #font-picker:hover {
-  border-color: var(--accent);
+  border-color: rgba(255, 255, 255, 0.14);
   color: var(--fg);
+}
+
+[data-theme="light"] #font-picker:hover {
+  border-color: rgba(0, 0, 0, 0.14);
 }
 
 #font-picker:focus {
@@ -184,13 +219,13 @@ html, body {
 /* CodeMirror */
 .cm-editor {
   height: 100%;
-  font-size: 13px;
+  font-size: 13.5px;
   background: var(--bg-editor) !important;
 }
 
 .cm-editor .cm-scroller {
   font-family: var(--mono-font);
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
 .cm-editor .cm-gutters {
@@ -202,7 +237,7 @@ html, body {
 
 .cm-editor .cm-activeLineGutter {
   background: transparent !important;
-  color: var(--fg) !important;
+  color: var(--fg-secondary) !important;
 }
 
 .cm-editor .cm-activeLine {
@@ -214,20 +249,28 @@ html, body {
 }
 
 .cm-editor .cm-selectionBackground {
-  background: rgba(122, 162, 247, 0.12) !important;
+  background: rgba(224, 144, 80, 0.10) !important;
 }
 
 .cm-editor.cm-focused .cm-selectionBackground {
-  background: rgba(122, 162, 247, 0.18) !important;
+  background: rgba(224, 144, 80, 0.16) !important;
 }
 
 .cm-fat-cursor .cm-cursor {
-  background: rgba(122, 162, 247, 0.5) !important;
+  background: rgba(224, 144, 80, 0.5) !important;
   border: none !important;
 }
 
+[data-theme="light"] .cm-editor .cm-selectionBackground {
+  background: rgba(196, 101, 42, 0.08) !important;
+}
+
+[data-theme="light"] .cm-editor.cm-focused .cm-selectionBackground {
+  background: rgba(196, 101, 42, 0.14) !important;
+}
+
 [data-theme="light"] .cm-fat-cursor .cm-cursor {
-  background: rgba(46, 125, 233, 0.5) !important;
+  background: rgba(196, 101, 42, 0.45) !important;
 }
 
 .cm-vim-panel {
@@ -246,27 +289,27 @@ html, body {
 
 /* Markmap dark theme overrides */
 .markmap-dark .markmap {
-  --markmap-text-color: #e2e8f8;
-  --markmap-a-color: #7aa2f7;
-  --markmap-a-hover-color: #89b4fa;
-  --markmap-code-bg: #1f2335;
-  --markmap-code-color: #c0caf5;
+  --markmap-text-color: #e8e6e3;
+  --markmap-a-color: #6bafbd;
+  --markmap-a-hover-color: #82c4d0;
+  --markmap-code-bg: #2a2a2c;
+  --markmap-code-color: #e8e6e3;
   --markmap-code-font: var(--mono-font);
-  --markmap-circle-open-bg: #1f2335;
-  --markmap-highlight-bg: rgba(224, 175, 104, 0.2);
+  --markmap-circle-open-bg: #2a2a2c;
+  --markmap-highlight-bg: rgba(224, 144, 80, 0.15);
   --markmap-font: 400 15px/22px "Inter", -apple-system, system-ui, sans-serif;
 }
 
 /* Markmap light theme overrides */
 .markmap-light .markmap {
-  --markmap-text-color: #343b58;
-  --markmap-a-color: #2e7de9;
-  --markmap-a-hover-color: #1a6ad4;
-  --markmap-code-bg: #e8e8ec;
-  --markmap-code-color: #343b58;
+  --markmap-text-color: #1a1a1a;
+  --markmap-a-color: #2878a8;
+  --markmap-a-hover-color: #1e6690;
+  --markmap-code-bg: #eae9e5;
+  --markmap-code-color: #1a1a1a;
   --markmap-code-font: var(--mono-font);
-  --markmap-circle-open-bg: #ffffff;
-  --markmap-highlight-bg: rgba(150, 120, 50, 0.15);
+  --markmap-circle-open-bg: #fdfcfa;
+  --markmap-highlight-bg: rgba(196, 101, 42, 0.10);
   --markmap-font: 400 15px/22px "Inter", -apple-system, system-ui, sans-serif;
 }
 
@@ -276,7 +319,7 @@ html, body {
 }
 
 #mindmap-pane .markmap-link {
-  opacity: 0.3;
+  opacity: 0.35;
   stroke-width: 1.5px !important;
 }
 
@@ -298,7 +341,7 @@ html, body {
 
 #mindmap-pane .markmap-node > circle {
   r: 3.5;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 /* Smooth transitions on node expand/collapse */
@@ -320,22 +363,25 @@ html, body {
 #btn-vimrc {
   background: none;
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 6px;
   color: var(--fg-dim);
-  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
-  font-size: 10px;
+  font-family: var(--ui-font);
+  font-size: 11px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 1px 6px;
+  padding: 2px 8px;
   transition: all 0.15s ease;
 }
 
 #btn-vimrc:hover {
-  color: var(--fg);
-  border-color: var(--accent);
-  background: var(--accent-dim);
+  color: var(--fg-secondary);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+[data-theme="light"] #btn-vimrc:hover {
+  border-color: rgba(0, 0, 0, 0.14);
 }
 
 /* .vimrc modal */
@@ -343,10 +389,12 @@ html, body {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .vimrc-overlay.hidden {
@@ -356,24 +404,24 @@ html, body {
 .vimrc-modal {
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 14px;
   width: 480px;
   max-height: 80vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
 }
 
 .vimrc-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--border);
 }
 
 .vimrc-title {
-  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  font-family: var(--ui-font);
   font-size: 13px;
   font-weight: 600;
   color: var(--fg);
@@ -387,10 +435,13 @@ html, body {
   cursor: pointer;
   padding: 0 4px;
   line-height: 1;
+  border-radius: 4px;
+  transition: all 0.15s ease;
 }
 
 .vimrc-close:hover {
   color: var(--fg);
+  background: var(--accent-dim);
 }
 
 #vimrc-editor {
@@ -399,8 +450,8 @@ html, body {
   background: var(--bg-editor);
   color: var(--fg);
   border: none;
-  padding: 12px 16px;
-  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  padding: 14px 18px;
+  font-family: var(--mono-font);
   font-size: 12px;
   line-height: 1.7;
   resize: none;
@@ -416,7 +467,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 12px 18px;
   border-top: 1px solid var(--border);
 }
 
@@ -429,15 +480,33 @@ html, body {
   background: var(--accent);
   color: #ffffff;
   border: none;
-  border-radius: 5px;
-  padding: 5px 14px;
+  border-radius: 6px;
+  padding: 6px 16px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  font-family: inherit;
+  font-family: var(--ui-font);
   transition: opacity 0.15s ease;
 }
 
 #vimrc-save:hover {
   opacity: 0.85;
+}
+
+/* Scrollbar */
+.cm-editor .cm-scroller::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cm-editor .cm-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cm-editor .cm-scroller::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.cm-editor .cm-scroller::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-dim);
 }

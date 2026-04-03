@@ -69,7 +69,7 @@ html, body {
   height: 28px;
   display: flex;
   align-items: center;
-  padding: 0 8px;
+  padding: 0 8px 0 78px;
   gap: 2px;
   background: var(--statusbar-bg);
   border-bottom: 1px solid var(--border);

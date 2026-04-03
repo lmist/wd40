@@ -90,7 +90,7 @@ function updateMarkmap(md: string) {
   const opts = deriveOptions({
     colorFreezeLevel: 2,
     color: BRANCH_COLORS,
-    initialExpandLevel: 2,
+    initialExpandLevel: -1,
     paddingX: 16,
     spacingVertical: 8,
   });
@@ -183,6 +183,31 @@ function zoomBy(factor: number) {
 
 document.getElementById("btn-zoom-in")!.addEventListener("click", () => zoomBy(1.3));
 document.getElementById("btn-zoom-out")!.addEventListener("click", () => zoomBy(0.77));
+
+function walkTree(node: any, fn: (n: any) => void) {
+  fn(node);
+  if (node.children) node.children.forEach((c: any) => walkTree(c, fn));
+}
+
+document.getElementById("btn-expand-all")!.addEventListener("click", () => {
+  if (!mm) return;
+  const data = (mm as any).state.data;
+  walkTree(data, (n) => { n.payload = { ...n.payload, fold: 0 }; });
+  mm.renderData();
+  setTimeout(() => mm.fit(), 50);
+});
+
+document.getElementById("btn-collapse-all")!.addEventListener("click", () => {
+  if (!mm) return;
+  const data = (mm as any).state.data;
+  // Collapse everything except root
+  walkTree(data, (n) => {
+    if (n.children?.length) n.payload = { ...n.payload, fold: 1 };
+  });
+  data.payload = { ...data.payload, fold: 0 }; // keep root open
+  mm.renderData();
+  setTimeout(() => mm.fit(), 50);
+});
 
 // Keyboard shortcut: Cmd+Shift+F to fit
 document.addEventListener("keydown", (e) => {

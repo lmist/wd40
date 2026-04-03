@@ -4,7 +4,7 @@ import { markdown } from "@codemirror/lang-markdown";
 import { defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
-import { vim, Vim } from "@replit/codemirror-vim";
+import { vim, Vim, getCM } from "@replit/codemirror-vim";
 import { Transformer } from "markmap-lib";
 import { Markmap, deriveOptions } from "markmap-view";
 import { zoomTransform } from "d3";
@@ -183,6 +183,71 @@ try {
     vimModeEl.textContent = mode.toUpperCase();
   });
 } catch (_) {}
+
+// --- .vimrc support ---
+const VIMRC_KEY = "vimrc";
+
+function applyVimrc() {
+  const vimrc = localStorage.getItem(VIMRC_KEY) || "";
+  const cm = getCM(editor);
+  if (!cm) return;
+  for (const raw of vimrc.split("\n")) {
+    const line = raw.trim();
+    if (!line || line.startsWith('"')) continue; // skip empty lines and comments
+    try {
+      (Vim as any).handleEx(cm, line);
+    } catch (_) {
+      // silently skip invalid commands
+    }
+  }
+}
+
+// Modal elements
+const vimrcOverlay = document.getElementById("vimrc-overlay")!;
+const vimrcEditor = document.getElementById("vimrc-editor") as HTMLTextAreaElement;
+const vimrcSaveBtn = document.getElementById("vimrc-save")!;
+const vimrcCloseBtn = document.getElementById("vimrc-close")!;
+const vimrcBtn = document.getElementById("btn-vimrc")!;
+
+function openVimrc() {
+  vimrcEditor.value = localStorage.getItem(VIMRC_KEY) || "";
+  vimrcOverlay.classList.remove("hidden");
+  vimrcEditor.focus();
+}
+
+function closeVimrc() {
+  vimrcOverlay.classList.add("hidden");
+  editor.focus();
+}
+
+function saveVimrc() {
+  localStorage.setItem(VIMRC_KEY, vimrcEditor.value);
+  applyVimrc();
+  closeVimrc();
+}
+
+vimrcBtn.addEventListener("click", openVimrc);
+vimrcCloseBtn.addEventListener("click", closeVimrc);
+vimrcSaveBtn.addEventListener("click", saveVimrc);
+vimrcOverlay.addEventListener("click", (e) => {
+  if (e.target === vimrcOverlay) closeVimrc();
+});
+
+// Keyboard: Escape to close modal
+vimrcOverlay.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    e.stopPropagation();
+    closeVimrc();
+  }
+  // Cmd+Enter to save
+  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+    e.preventDefault();
+    saveVimrc();
+  }
+});
+
+// Apply saved vimrc on startup
+applyVimrc();
 
 // --- Initial render ---
 updateMarkmap(INITIAL_MD);

@@ -1,5 +1,6 @@
 :root {
   --divider-width: 3px;
+  --mono-font: "SF Mono", "Menlo", monospace;
 }
 
 /* Dark theme (default) */
@@ -129,7 +130,7 @@ html, body {
   padding: 0 12px;
   gap: 12px;
   font-size: 11px;
-  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  font-family: var(--mono-font);
   color: var(--fg-dim);
   -webkit-app-region: no-drag;
 }
@@ -149,6 +150,37 @@ html, body {
   color: var(--fg-dim);
 }
 
+.statusbar-spacer {
+  flex: 1;
+}
+
+#font-picker {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--fg-dim);
+  font-family: var(--mono-font);
+  font-size: 10px;
+  padding: 1px 4px;
+  cursor: pointer;
+  outline: none;
+  max-width: 160px;
+}
+
+#font-picker:hover {
+  border-color: var(--accent);
+  color: var(--fg);
+}
+
+#font-picker:focus {
+  border-color: var(--accent);
+}
+
+#font-picker option {
+  background: var(--bg);
+  color: var(--fg);
+}
+
 /* CodeMirror */
 .cm-editor {
   height: 100%;
@@ -157,7 +189,7 @@ html, body {
 }
 
 .cm-editor .cm-scroller {
-  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  font-family: var(--mono-font);
   line-height: 1.7;
 }
 
@@ -201,7 +233,7 @@ html, body {
 .cm-vim-panel {
   background: var(--statusbar-bg) !important;
   color: var(--fg) !important;
-  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace !important;
+  font-family: var(--mono-font) !important;
   font-size: 12px !important;
   padding: 4px 8px !important;
   border-top: 1px solid var(--border) !important;
@@ -219,6 +251,7 @@ html, body {
   --markmap-a-hover-color: #89b4fa;
   --markmap-code-bg: #1f2335;
   --markmap-code-color: #c0caf5;
+  --markmap-code-font: var(--mono-font);
   --markmap-circle-open-bg: #1f2335;
   --markmap-highlight-bg: rgba(224, 175, 104, 0.2);
   --markmap-font: 400 15px/22px "Inter", -apple-system, system-ui, sans-serif;
@@ -231,6 +264,7 @@ html, body {
   --markmap-a-hover-color: #1a6ad4;
   --markmap-code-bg: #e8e8ec;
   --markmap-code-color: #343b58;
+  --markmap-code-font: var(--mono-font);
   --markmap-circle-open-bg: #ffffff;
   --markmap-highlight-bg: rgba(150, 120, 50, 0.15);
   --markmap-font: 400 15px/22px "Inter", -apple-system, system-ui, sans-serif;
@@ -255,6 +289,11 @@ html, body {
 
 #mindmap-pane .markmap-foreign {
   color: var(--fg);
+}
+
+#mindmap-pane .markmap-foreign code,
+#mindmap-pane .markmap-foreign pre {
+  font-family: var(--mono-font);
 }
 
 #mindmap-pane .markmap-node > circle {

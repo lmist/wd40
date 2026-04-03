@@ -45,6 +45,18 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Transparent titlebar drag region */
+#titlebar {
+  height: 28px;
+  -webkit-app-region: drag;
+  background: transparent;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+}
+
 #app {
   display: flex;
   height: calc(100% - 26px);
@@ -93,6 +105,7 @@ html, body {
   display: flex;
   gap: 4px;
   z-index: 10;
+  -webkit-app-region: no-drag;
 }
 
 #toolbar button {

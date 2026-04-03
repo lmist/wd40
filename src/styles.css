@@ -1,0 +1,236 @@
+:root {
+  --bg: #1a1b26;
+  --bg-surface: #16161e;
+  --bg-editor: #13131a;
+  --fg: #c0caf5;
+  --fg-dim: #565f89;
+  --accent: #7aa2f7;
+  --accent-dim: rgba(122, 162, 247, 0.15);
+  --border: #1f2335;
+  --statusbar-bg: #13131a;
+  --divider-width: 3px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  display: flex;
+  height: calc(100% - 26px);
+  padding-top: 28px;
+}
+
+#editor-pane {
+  width: 38%;
+  min-width: 200px;
+  height: 100%;
+  background: var(--bg-editor);
+  overflow: hidden;
+}
+
+#divider {
+  width: var(--divider-width);
+  cursor: col-resize;
+  background: var(--border);
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+#divider:hover,
+#divider.dragging {
+  background: var(--accent);
+}
+
+#mindmap-pane {
+  flex: 1;
+  height: 100%;
+  background: var(--bg-surface);
+  overflow: hidden;
+  position: relative;
+}
+
+#markmap {
+  width: 100%;
+  height: 100%;
+}
+
+/* Toolbar */
+#toolbar {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  gap: 4px;
+  z-index: 10;
+}
+
+#toolbar button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--fg-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+#toolbar button:hover {
+  background: var(--accent-dim);
+  color: var(--fg);
+  border-color: rgba(122, 162, 247, 0.3);
+}
+
+#toolbar button:active {
+  transform: scale(0.92);
+}
+
+/* Status bar */
+#statusbar {
+  height: 26px;
+  background: var(--statusbar-bg);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 12px;
+  font-size: 11px;
+  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  color: var(--fg-dim);
+  -webkit-app-region: no-drag;
+}
+
+#vim-mode {
+  background: var(--accent);
+  color: var(--bg);
+  padding: 1px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+#file-name {
+  color: var(--fg-dim);
+}
+
+/* CodeMirror */
+.cm-editor {
+  height: 100%;
+  font-size: 13px;
+  background: var(--bg-editor) !important;
+}
+
+.cm-editor .cm-scroller {
+  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  line-height: 1.7;
+}
+
+.cm-editor .cm-gutters {
+  background: var(--bg-editor) !important;
+  border-right: 1px solid var(--border) !important;
+  color: var(--fg-dim) !important;
+  min-width: 36px;
+}
+
+.cm-editor .cm-activeLineGutter {
+  background: transparent !important;
+  color: var(--fg) !important;
+}
+
+.cm-editor .cm-activeLine {
+  background: var(--accent-dim) !important;
+}
+
+.cm-editor .cm-cursor {
+  border-left-color: var(--accent) !important;
+}
+
+.cm-editor .cm-selectionBackground {
+  background: rgba(122, 162, 247, 0.12) !important;
+}
+
+.cm-editor.cm-focused .cm-selectionBackground {
+  background: rgba(122, 162, 247, 0.18) !important;
+}
+
+.cm-fat-cursor .cm-cursor {
+  background: rgba(122, 162, 247, 0.5) !important;
+  border: none !important;
+}
+
+.cm-vim-panel {
+  background: var(--statusbar-bg) !important;
+  color: var(--fg) !important;
+  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace !important;
+  font-size: 12px !important;
+  padding: 4px 8px !important;
+  border-top: 1px solid var(--border) !important;
+}
+
+.cm-vim-panel input {
+  color: var(--fg) !important;
+  font-family: inherit !important;
+}
+
+/* Markmap dark theme overrides */
+.markmap-dark .markmap {
+  --markmap-text-color: #e2e8f8;
+  --markmap-a-color: #7aa2f7;
+  --markmap-a-hover-color: #89b4fa;
+  --markmap-code-bg: #1f2335;
+  --markmap-code-color: #c0caf5;
+  --markmap-circle-open-bg: #1f2335;
+  --markmap-highlight-bg: rgba(224, 175, 104, 0.2);
+  --markmap-font: 400 15px/22px "Inter", -apple-system, system-ui, sans-serif;
+}
+
+/* Markmap node & link styling */
+#mindmap-pane .markmap-node circle {
+  stroke-width: 1.5px;
+}
+
+#mindmap-pane .markmap-link {
+  opacity: 0.3;
+  stroke-width: 1.5px !important;
+}
+
+#mindmap-pane .markmap-node text {
+  font-family: "Inter", -apple-system, system-ui, sans-serif !important;
+  font-weight: 400;
+  font-size: 14px;
+  fill: #e2e8f8 !important;
+}
+
+#mindmap-pane .markmap-foreign {
+  color: #e2e8f8;
+}
+
+#mindmap-pane .markmap-node > circle {
+  r: 3.5;
+  opacity: 0.8;
+}
+
+/* Smooth transitions on node expand/collapse */
+#mindmap-pane .markmap-node,
+#mindmap-pane .markmap-link {
+  transition: opacity 0.2s ease;
+}

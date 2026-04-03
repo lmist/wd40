@@ -9,6 +9,7 @@ import { Transformer } from "markmap-lib";
 import { Markmap, deriveOptions } from "markmap-view";
 import { zoomTransform } from "d3-zoom";
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { initFonts, setFont, getSavedFont, getFontNames } from "./fonts";
 import { headingMarkers } from "./heading-markers";
 import { THEMES, getThemeById, applyChromeColors, ThemeEntry } from "./themes";
@@ -301,6 +302,11 @@ tabs.push(firstTab);
 activeTabId = firstTab.id;
 fileNameEl.textContent = firstTab.name;
 renderTabBar();
+
+// Double-click title bar to zoom (standard macOS behavior)
+tabBar.addEventListener("dblclick", () => {
+  getCurrentWindow().toggleMaximize();
+});
 
 // --- Active pane tracking ---
 let activePane: "editor" | "mindmap" = "editor";

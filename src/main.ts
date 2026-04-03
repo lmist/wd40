@@ -9,8 +9,9 @@ import { Transformer } from "markmap-lib";
 import { Markmap, deriveOptions } from "markmap-view";
 import { zoomTransform } from "d3-zoom";
 import { invoke } from "@tauri-apps/api/core";
-import { oneDark, oneLight, LIGHT_BRANCH_COLORS } from "./theme";
 import { initFonts, setFont, getSavedFont, getFontNames } from "./fonts";
+import { headingMarkers } from "./heading-markers";
+import { THEMES, getThemeById, applyChromeColors, ThemeEntry } from "./themes";
 
 // --- Moby-style name generator ---
 const ADJECTIVES = [
@@ -128,27 +129,21 @@ const INITIAL_MD = `# https://docs.oasis.camel-ai.org/introduction
 ## how do we gracefully load into context by using a graph
 `;
 
-// --- Color palettes ---
-const DARK_BRANCH_COLORS = [
-  "#e09050", // amber
-  "#8cc265", // green
-  "#6bafbd", // teal
-  "#c49be0", // purple
-  "#e0b854", // gold
-  "#e06868", // coral
-  "#5cb8c8", // cyan
-  "#e08890", // pink
-];
-
 // --- Theme state ---
-function getInitialTheme(): "dark" | "light" {
-  const stored = localStorage.getItem("theme");
-  if (stored === "dark" || stored === "light") return stored;
-  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+function getInitialThemeEntry(): ThemeEntry {
+  const savedId = localStorage.getItem("theme-id");
+  if (savedId) {
+    const found = getThemeById(savedId);
+    if (found) return found;
+  }
+  // Fall back to system preference
+  const preferLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  return preferLight ? THEMES[1] : THEMES[0]; // Tokyo Night Day / Tokyo Night
 }
 
-let currentTheme = getInitialTheme();
-document.documentElement.setAttribute("data-theme", currentTheme);
+let currentThemeEntry = getInitialThemeEntry();
+document.documentElement.setAttribute("data-theme", currentThemeEntry.isDark ? "dark" : "light");
+applyChromeColors(currentThemeEntry.chrome);
 
 // --- Markmap setup ---
 const transformer = new Transformer();
@@ -158,7 +153,7 @@ let mm: Markmap;
 function getMarkmapOpts() {
   return deriveOptions({
     colorFreezeLevel: 2,
-    color: currentTheme === "dark" ? DARK_BRANCH_COLORS : LIGHT_BRANCH_COLORS,
+    color: currentThemeEntry.branchColors,
     initialExpandLevel: -1,
     paddingX: 16,
     spacingVertical: 8,
@@ -167,7 +162,7 @@ function getMarkmapOpts() {
 
 function applyMarkmapTheme() {
   svgEl.classList.remove("markmap-dark", "markmap-light");
-  svgEl.classList.add(currentTheme === "dark" ? "markmap-dark" : "markmap-light");
+  svgEl.classList.add(currentThemeEntry.isDark ? "markmap-dark" : "markmap-light");
 }
 
 async function updateMarkmap(md: string) {
@@ -218,7 +213,8 @@ const editor = new EditorView({
       history(),
       markdown(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-      themeCompartment.of(currentTheme === "dark" ? oneDark : oneLight),
+      themeCompartment.of(currentThemeEntry.extension),
+      headingMarkers,
       highlightSelectionMatches(),
       keymap.of([
         ...defaultKeymap,
@@ -582,32 +578,77 @@ new ResizeObserver(() => debouncedFit()).observe(
   document.getElementById("mindmap-pane")!
 );
 
-// --- Theme toggle ---
-function setTheme(theme: "dark" | "light") {
-  currentTheme = theme;
-  localStorage.setItem("theme", theme);
-  document.documentElement.setAttribute("data-theme", theme);
+// --- Theme system ---
+function setThemeById(id: string) {
+  const entry = getThemeById(id);
+  if (!entry) return;
+
+  currentThemeEntry = entry;
+  localStorage.setItem("theme-id", id);
+  document.documentElement.setAttribute("data-theme", entry.isDark ? "dark" : "light");
+  applyChromeColors(entry.chrome);
+
+  // Remember last dark/light choice for the toggle button
+  localStorage.setItem(entry.isDark ? "last-dark-theme" : "last-light-theme", id);
 
   // Swap CodeMirror theme
   editor.dispatch({
-    effects: themeCompartment.reconfigure(theme === "dark" ? oneDark : oneLight),
+    effects: themeCompartment.reconfigure(entry.extension),
   });
 
   // Re-render markmap with new colors
   applyMarkmapTheme();
   const md = editor.state.doc.toString();
   updateMarkmap(md);
+
+  // Sync the theme picker select
+  const picker = document.getElementById("theme-picker") as HTMLSelectElement;
+  if (picker.value !== id) picker.value = id;
 }
 
+// Toggle button: quick dark/light swap
 document.getElementById("btn-theme")!.addEventListener("click", () => {
-  setTheme(currentTheme === "dark" ? "light" : "dark");
+  if (currentThemeEntry.isDark) {
+    const lightId = localStorage.getItem("last-light-theme") || "wd40-light";
+    setThemeById(lightId);
+  } else {
+    const darkId = localStorage.getItem("last-dark-theme") || "wd40-dark";
+    setThemeById(darkId);
+  }
 });
 
 // Respect system preference changes
 window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", (e) => {
-  if (!localStorage.getItem("theme")) {
-    setTheme(e.matches ? "light" : "dark");
+  if (!localStorage.getItem("theme-id")) {
+    setThemeById(e.matches ? "wd40-light" : "wd40-dark");
   }
+});
+
+// --- Theme picker ---
+const themePicker = document.getElementById("theme-picker") as HTMLSelectElement;
+
+// Group themes by dark/light
+const darkThemes = THEMES.filter((t) => t.isDark);
+const lightThemes = THEMES.filter((t) => !t.isDark);
+
+function addThemeGroup(label: string, themes: ThemeEntry[]) {
+  const group = document.createElement("optgroup");
+  group.label = label;
+  for (const t of themes) {
+    const opt = document.createElement("option");
+    opt.value = t.id;
+    opt.textContent = t.label;
+    if (t.id === currentThemeEntry.id) opt.selected = true;
+    group.appendChild(opt);
+  }
+  themePicker.appendChild(group);
+}
+
+addThemeGroup("Dark", darkThemes);
+addThemeGroup("Light", lightThemes);
+
+themePicker.addEventListener("change", () => {
+  setThemeById(themePicker.value);
 });
 
 // --- Font picker ---

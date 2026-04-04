@@ -1,11 +1,11 @@
-# Eng Review: wd40 Premium Pass — "Cupertino Solace"
+# Engineering Review: 
 
 ## Context
 
-wd40 is a Tauri v2 markdown editor + live mindmap. The architecture and features are done. This plan implements a 4-layer visual refinement pass plus a theme redesign: strip 24 third-party themes down to 3 hand-designed ones, then refine typography, animations, mindmap beauty, and chrome details.
+wd40 is a Tauri v2 markdown editor + live mindmap. This plan implements a 4-layer visual refinement pass plus a theme redesign: strip 24 third-party themes down to 3 hand-designed ones, then refine typography, animations, mindmap beauty, and chrome details.
 
-Read if you need:
-Design doc: `~/.gstack/projects/lmist-wd40/lou-lmist-kyoto-design-20260404-002601.md`
+if you need to understand something more deeply, you can reference the parent design doc of wd40 here:
+[parent design doc for wd40]('./wd40.md')
 
 ## Scope
 
@@ -13,7 +13,7 @@ Design doc: `~/.gstack/projects/lmist-wd40/lou-lmist-kyoto-design-20260404-00260
 Also: `package.json` (remove ~16 `@uiw/codemirror-theme-*` deps), `src/theme.ts` (keep — custom theme definitions)
 No new features. No new files.
 
-**Scope change from design doc:** 24 themes → max 3 hand-designed themes. Third-party theme packages removed. Use /design-consultation or /design-shotgun to create the 3 themes with Stallman+Jobs+Ive sensibility.
+**Scope change from design doc:** 24 themes → max 3 hand-designed themes. Third-party theme packages removed. Use the commands /design-consultation or /design-shotgun to create the 3 themes with Stallman+Jobs+Ive sensibility. This is specifically where you will want to read the parent design doc in [parent design doc for wd40]('./wd40.md').
 
 ## Implementation Order: 1 → 4 → 2 → 3
 

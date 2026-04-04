@@ -1,32 +1,27 @@
 ## Layer 3: Mindmap Beauty + Theme Redesign
 
-Final pass — strip 24 third-party themes to 3 hand-designed ones, refine mindmap visuals. Touches styles.css, main.ts, themes.ts, and package.json.
-
 ### Priority
 2
 
 ### Type
 epic
 
-### Labels
-theme, mindmap, visual, breaking
-
-### Dependencies
-blocks:layer-2-animations
+### Description
+Redesign from 24 third-party themes to 3 hand-crafted themes with Stallman+Jobs+Ive sensibility. Also refine markmap visual spacing and link opacity. Touches styles.css, main.ts, themes.ts, and package.json.
 
 ### Acceptance Criteria
-- Only 3 themes in picker (wd40 Dark, wd40 Light, TBD third)
-- All @uiw/codemirror-theme-* dependencies removed from package.json
-- Each theme has CodeMirror Extension, ChromeColors (16 props), branchColors (8 colors)
-- Mindmap spacing is generous and links are visible
-- Full app feels cohesive across all 3 themes
-- Visual verification via `pnpm tauri dev`
+- Only 3 themes in the picker, each visually distinct and handcrafted
+- No @uiw/codemirror-theme-* packages remain in package.json
+- Theme toggle cycles 1→2→3→1 (no dark/light memory logic)
+- Markmap branch links are more visible, spacing feels generous
+- `pnpm tauri dev` — full pass: switch themes, create tabs, resize, open modal, type markdown
+
+### Labels
+themes, styles, main.ts, themes.ts
 
 ---
 
-## Strip third-party theme packages
-
-Remove all @uiw/codemirror-theme-* dependencies and imports.
+## Design 3 Themes
 
 ### Priority
 1
@@ -35,73 +30,61 @@ Remove all @uiw/codemirror-theme-* dependencies and imports.
 task
 
 ### Description
-- Remove ~16 `@uiw/codemirror-theme-*` dependencies from package.json
-- Remove all third-party theme imports from themes.ts
-- Remove all third-party theme entries from the THEMES array in themes.ts
-- Delete `darkChrome()` and `lightChrome()` helper functions
-- Run `pnpm install` to clean lockfile
+Run /design-consultation or /design-shotgun to design the 3 replacement themes. Start from existing wd40 dark/light palettes and refine with Stallman+Jobs+Ive sensibility.
+
+- Theme 1: **wd40 Dark** — warm dark, starting from current dark palette
+- Theme 2: **wd40 Light** — warm paper, starting from current light palette
+- Theme 3: TBD — possibly warm neutral/mid-tone, or something unexpected from design process
+
+Each theme needs: CodeMirror Extension (syntax highlighting), ChromeColors (16 properties), branchColors (8 colors).
 
 ### Design
-Clearing the deck before designing new themes. darkChrome/lightChrome are replaced by inline ChromeColors per theme.
+Reference the parent design doc at plans/wd40.md for product sensibility. Use /design-consultation to understand the product before proposing palettes, or /design-shotgun to generate multiple variants for comparison.
 
 ### Acceptance Criteria
-- No @uiw/codemirror-theme-* in package.json or lockfile
-- No third-party theme imports in themes.ts
-- darkChrome() and lightChrome() deleted
-- App still compiles (may have only 1-2 themes temporarily)
+- 3 complete theme definitions documented (color values for all required properties)
+- Each theme passes visual review: looks intentional, not generic
+- Design rationale recorded for each theme
 
 ### Labels
-theme, cleanup, dependencies
+themes, design
 
 ### Dependencies
-blocks:layer-3-mindmap-themes
+blocks:layer-3-epic
 
 ---
 
-## Design 3 hand-crafted themes
-
-Create 3 cohesive themes using /design-consultation or /design-shotgun with Stallman+Jobs+Ive sensibility.
+## Strip Third-Party Theme Packages
 
 ### Priority
 1
 
 ### Type
-feature
+task
 
 ### Description
-Design and implement 3 themes, each with:
-- CodeMirror Extension (syntax highlighting styles)
-- ChromeColors (16 CSS custom properties)
-- branchColors (8 mindmap link colors)
+Remove all third-party @uiw/codemirror-theme-* packages and their code from the project:
 
-Themes:
-1. **wd40 Dark** — warm dark, refine from current palette
-2. **wd40 Light** — warm paper, refine from current palette
-3. **TBD** — warm neutral/mid-tone or something unexpected from design process
-
-Reference the parent design doc at `plans/wd40.md` for design context.
-
-### Design
-Use /design-consultation or /design-shotgun to explore. Start from existing wd40 dark/light as baseline. Each theme should feel hand-crafted, not generated. ChromeColors are inlined directly on each theme entry (no darkChrome/lightChrome helpers).
+- Remove ~16 `@uiw/codemirror-theme-*` entries from package.json dependencies
+- Remove all third-party theme imports from themes.ts THEMES array
+- Delete `darkChrome()` and `lightChrome()` helper functions from themes.ts
+- Inline ChromeColors directly on each of the 3 remaining theme definitions
 
 ### Acceptance Criteria
-- 3 visually distinct, cohesive themes
-- Each theme defines all 16 ChromeColors properties
-- Syntax highlighting is readable and aesthetically pleasing in each theme
-- branchColors create a harmonious mindmap in each theme
-- Themes feel "designed" not "generated"
+- `package.json` contains no `@uiw/codemirror-theme-*` dependencies
+- `pnpm install` completes without those packages
+- No import errors from removed packages
+- darkChrome/lightChrome helpers deleted (not just unused)
 
 ### Labels
-theme, design, creative
+themes, themes.ts, cleanup
 
 ### Dependencies
-blocks:strip-third-party-theme-packages
+blocks:design-3-themes
 
 ---
 
-## Simplify theme picker and toggle
-
-Replace optgroup picker with 3 flat options and cycle toggle.
+## Simplify Theme Picker
 
 ### Priority
 2
@@ -110,31 +93,29 @@ Replace optgroup picker with 3 flat options and cycle toggle.
 task
 
 ### Description
-In main.ts:
-- Lines 633-658: Remove optgroup logic, replace with 3 flat `<option>` elements
-- Lines 597-598, 616-624: Remove `last-dark-theme`/`last-light-theme` localStorage keys
-- Theme toggle button: cycle through themes (1 -> 2 -> 3 -> 1) instead of dark/light memory
+Replace optgroup-based theme picker with 3 flat options in main.ts (lines 633-658):
 
-### Design
-With only 3 themes, grouping by dark/light is unnecessary overhead. Cycle toggle is simpler and more discoverable.
+- Remove optgroup logic
+- Replace with 3 `<option>` elements (one per theme)
+- Theme toggle button: cycle through all 3 themes instead of dark/light memory
+- Remove `last-dark-theme`/`last-light-theme` localStorage keys (lines 597-598, 616-624)
+- Toggle cycles: Theme 1 → Theme 2 → Theme 3 → Theme 1
 
 ### Acceptance Criteria
-- Theme picker shows 3 flat options (no groups)
-- Toggle button cycles through all 3 themes
-- No localStorage keys for last-dark/last-light
-- Selected theme persists across app restart
+- Theme picker shows exactly 3 options
+- Toggle button cycles through all 3 in order, wrapping
+- No localStorage keys for last-dark/last-light theme
+- Previously saved last-dark/last-light values don't cause errors on load
 
 ### Labels
-theme, ui, simplification
+main.ts, themes
 
 ### Dependencies
-blocks:design-3-hand-crafted-themes
+blocks:strip-third-party-themes
 
 ---
 
-## Markmap spacing adjustments
-
-Increase markmap node spacing for more generous, readable layout.
+## Markmap Spacing
 
 ### Priority
 2
@@ -143,26 +124,24 @@ Increase markmap node spacing for more generous, readable layout.
 task
 
 ### Description
-In main.ts (lines 154-161):
-- `spacingVertical: 8` -> `12`
-- `paddingX: 16` -> `20`
+Increase markmap node spacing for a more generous, readable layout (main.ts:154-161):
+
+- `spacingVertical: 8 → 12`
+- `paddingX: 16 → 20`
 
 ### Acceptance Criteria
-- Mindmap nodes have more breathing room
-- No node overlap at reasonable document sizes
-- Layout still fits in panel at default width
+- Markmap nodes have more vertical breathing room
+- Node text not clipped at horizontal edges
 
 ### Labels
-mindmap, spacing
+main.ts, mindmap
 
 ### Dependencies
-blocks:layer-3-mindmap-themes
+blocks:layer-3-epic
 
 ---
 
-## Markmap visual refinements
-
-Adjust link opacity, stroke width, and font sizing for better mindmap aesthetics.
+## Markmap Visual Refinements
 
 ### Priority
 2
@@ -171,22 +150,19 @@ Adjust link opacity, stroke width, and font sizing for better mindmap aesthetics
 task
 
 ### Description
-In styles.css:
-- Line 454: opacity 0.35 -> 0.45 (links more visible)
-- Line 455: stroke-width 1.5px -> 1.8px (links slightly thicker)
-- Line 432: 15px/22px -> 14px/20px (align with node override)
-- Line 445: 15px/22px -> 14px/20px (align with node override)
+Increase branch link visibility and tighten base font sizing in styles.css (lines 432-483):
 
-### Design
-Links were too faint — bumping opacity and stroke makes the tree structure more legible. Font size alignment prevents inconsistency between default markmap text and our overridden node text.
+- Line 454: opacity 0.35 → 0.45 (branch links more visible)
+- Line 455: stroke-width 1.5px → 1.8px (thicker links)
+- Line 432: font 15px/22px → 14px/20px (base font, align with node override)
+- Line 445: font 15px/22px → 14px/20px (node font, same)
 
 ### Acceptance Criteria
-- Mindmap links clearly visible against all 3 theme backgrounds
-- Font sizes consistent between nodes and markmap defaults
-- No visual regression on complex documents
+- Branch links visibly more prominent than before
+- Font size change doesn't break node layout or overflow containers
 
 ### Labels
-mindmap, visual
+styles, mindmap
 
 ### Dependencies
-blocks:layer-3-mindmap-themes
+blocks:layer-3-epic

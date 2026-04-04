@@ -1,39 +1,4 @@
-## Custom markmap link shapes
-
-Investigate custom bezier curves for markmap links to replace the mechanical d3 linkHorizontal default.
-
-### Priority
-3
-
-### Type
-feature
-
-### Description
-markmap-view uses d3-hierarchy's linkHorizontal internally. The current curves are functional but mechanical. Organic curves would make the mindmap feel more hand-drawn.
-
-Options:
-1. Contribute a `linkShape` option to markmap-view upstream
-2. Fork markmap-view with custom bezier curve generation
-
-### Design
-This is exploratory work. Depends on Layer 3 completing first — spacing adjustments alone may fix the "mechanical" feel, making this unnecessary.
-
-### Acceptance Criteria
-- Prototype of custom link curves exists (upstream PR or local fork)
-- Visual comparison: default curves vs custom curves
-- Decision on upstream contribution vs fork
-
-### Labels
-mindmap, visual, exploration
-
-### Dependencies
-blocks:layer-3-mindmap-themes
-
----
-
-## Test infrastructure setup
-
-Add vitest and basic test coverage for theme lookup and Rust markdown parser.
+## Custom Markmap Link Shapes
 
 ### Priority
 3
@@ -42,22 +7,51 @@ Add vitest and basic test coverage for theme lookup and Rust markdown parser.
 task
 
 ### Description
-Set up vitest and write tests for:
-- `getThemeById` — theme lookup by ID
-- `applyChromeColors` — CSS custom property application
-- Rust `parse_markdown` function
-- Rust `parse_list` function
+Investigate contributing a `linkShape` option to markmap-view upstream, or fork with custom bezier curve generation. Current curves are functional but mechanical. Organic curves would make the mindmap feel more hand-drawn.
 
-The Rust parser is the most complex code in the project with zero test coverage. A wrong parse tree = broken mindmap.
+markmap-view uses d3-hierarchy's `linkHorizontal` internally. Replacing this with custom bezier parameters (or a custom path generator) could produce softer, more organic branch curves.
 
 ### Design
-Use vitest for TypeScript tests. Rust tests use standard `#[cfg(test)]` modules. Start with happy-path tests, add edge cases incrementally.
+Depends on Layer 3 completing first — verify whether spacing adjustments alone resolve the mechanical feel before investing in custom curves. If spacing fixes it, this may be deprioritized further.
+
+Two approaches:
+1. Upstream contribution: propose `linkShape` option to markmap-view maintainers
+2. Fork: maintain a patched version with custom bezier generation
 
 ### Acceptance Criteria
-- vitest configured and running
-- Theme lookup tests pass
-- Rust parser tests cover basic markdown structures
-- `pnpm test` runs all tests
+- Branch links use custom bezier curves that feel organic/hand-drawn
+- OR: investigation concludes spacing alone is sufficient and issue is closed with rationale
 
 ### Labels
-testing, infrastructure, quality
+mindmap, research, backlog
+
+---
+
+## Test Infrastructure
+
+### Priority
+3
+
+### Type
+task
+
+### Description
+Add vitest + basic tests for theme lookup functions and Rust parser functions. The Rust parser is the most complex code in the project with zero test coverage — a wrong parse tree produces a broken mindmap with no error surfaced.
+
+Coverage targets:
+- `getThemeById()` — theme lookup by ID
+- `applyChromeColors()` — CSS custom property application
+- Rust `parse_markdown` — markdown to tree structure
+- Rust `parse_list` — list parsing
+
+### Design
+Rust tests: use Rust's built-in test framework (`#[cfg(test)]`). TypeScript tests: vitest with jsdom for DOM-touching functions.
+
+### Acceptance Criteria
+- `pnpm test` runs and passes
+- `getThemeById` and `applyChromeColors` have unit tests covering happy path + missing theme
+- Rust `parse_markdown` and `parse_list` have tests covering basic markdown structures
+- CI runs tests on push
+
+### Labels
+testing, rust, vitest, backlog

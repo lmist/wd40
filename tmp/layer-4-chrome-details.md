@@ -1,31 +1,26 @@
 ## Layer 4: Chrome & Details
 
-Second pass — polish chrome elements: physical tab appearance, divider grab affordance, statusbar fix. styles.css only.
-
 ### Priority
 1
 
 ### Type
 epic
 
-### Labels
-visual, chrome, polish
-
-### Dependencies
-blocks:layer-1-typography-spacing
+### Description
+Polish chrome elements: tab bar physical tab appearance, divider grab affordance, and statusbar text alignment. styles.css only. Implement after Layer 1.
 
 ### Acceptance Criteria
-- Active tab visually connects to editor pane
-- Divider widens on hover with smooth transition
-- Statusbar file name vertically centered
-- No overflow with 3+ tabs open
-- Visual verification via `pnpm tauri dev`
+- Active tab visually connects to editor pane (no gap)
+- Divider widens and highlights on hover/drag
+- 3+ tabs don't overflow the tab bar
+- Statusbar file name aligns cleanly
+
+### Labels
+styles, chrome, polish
 
 ---
 
-## Tab bar physical tab styling
-
-Restyle tabs to look like physical tabs that connect to the editor pane below.
+## Tab Bar Physical Tabs
 
 ### Priority
 1
@@ -34,7 +29,7 @@ Restyle tabs to look like physical tabs that connect to the editor pane below.
 task
 
 ### Description
-Update styles.css (lines 81-98):
+Restyle tab bar buttons to look like physical tabs that lift off the bar. Exact changes (styles.css:81-98):
 
 ```css
 #tab-bar button {
@@ -46,30 +41,24 @@ Update styles.css (lines 81-98):
   background: var(--bg-editor);  /* was: var(--accent-dim) */
   color: var(--fg);
   margin-top: 0;
-  padding-top: 6px;             /* grows upward 2px */
+  padding-top: 6px;  /* grows upward 2px */
 }
 ```
 
-### Design
-Active tab grows 2px upward and uses editor background color, creating visual continuity between tab and content. Inactive tabs sit 2px lower. Keep button height <= 24px to avoid 28px overflow.
-
 ### Acceptance Criteria
-- Active tab background matches editor pane
-- Active tab appears to "grow" from the editor
-- No overflow with 3+ tabs
-- Tab bar total height stays within 28px budget
+- Active tab background matches editor pane background (no visible seam)
+- Inactive tabs sit 2px below active tab
+- Button height stays ≤24px to prevent 28px overflow with 3+ tabs
 
 ### Labels
-visual, chrome, tabs
+styles, chrome
 
 ### Dependencies
-blocks:layer-4-chrome-details
+blocks:layer-4-epic
 
 ---
 
-## Divider grab affordance
-
-Add hover/drag visual feedback to the panel divider.
+## Divider Grab Affordance
 
 ### Priority
 1
@@ -78,7 +67,7 @@ Add hover/drag visual feedback to the panel divider.
 task
 
 ### Description
-Update styles.css (lines 144-163):
+Add hover/drag visual feedback to the panel resize divider. Exact changes (styles.css:144-163):
 
 ```css
 #divider {
@@ -92,25 +81,22 @@ Update styles.css (lines 144-163):
 ```
 
 ### Design
-Negative margin compensates for the width increase so adjacent panels don't shift. Transition easing keeps the expansion smooth.
+The negative margin compensates for width expansion so surrounding panels don't shift. Test at various split widths.
 
 ### Acceptance Criteria
-- Divider widens to 3px on hover
-- No layout shift when divider expands
-- Accent color visible on all 3 themes
-- Works during active drag (`.dragging` class)
+- Divider shows accent color on hover and while dragging
+- Divider widens to 3px on hover, returns to default on mouseout
+- No layout shift in editor or mindmap pane during hover
 
 ### Labels
-visual, chrome, interaction
+styles, chrome, interaction
 
 ### Dependencies
-blocks:layer-4-chrome-details
+blocks:layer-4-epic
 
 ---
 
-## Statusbar file name vertical alignment
-
-Add line-height: 1 to #file-name for proper vertical centering.
+## Statusbar Line Height
 
 ### Priority
 2
@@ -119,14 +105,14 @@ Add line-height: 1 to #file-name for proper vertical centering.
 task
 
 ### Description
-In styles.css (lines 246-248), add `line-height: 1` to the `#file-name` selector.
+Add `line-height: 1` to `#file-name` in styles.css (around lines 246-248) to prevent text from being clipped or misaligned vertically.
 
 ### Acceptance Criteria
-- File name text vertically centered in statusbar
-- No clipping of descenders
+- File name text vertically centered and not clipped
+- No change to statusbar height
 
 ### Labels
-visual, chrome
+styles, chrome
 
 ### Dependencies
-blocks:layer-4-chrome-details
+blocks:layer-4-epic

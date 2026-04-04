@@ -1,33 +1,28 @@
 ## Layer 2: Animations & Transitions
 
-Third pass — add motion. Theme fade, tab fade, modal animation, markmap transitions, debounce tuning, elastic panel snap-back. Touches styles.css and main.ts.
-
 ### Priority
 2
 
 ### Type
 epic
 
-### Labels
-animation, motion, polish
-
-### Dependencies
-blocks:layer-4-chrome-details
+### Description
+Add motion to the polished still frame: theme switch fade, tab switch fade, modal scale animation, markmap D3 transitions, and elastic panel snap-back. Touches styles.css and main.ts.
 
 ### Acceptance Criteria
-- Theme switch fades smoothly (no flash)
-- Tab switch fades smoothly
-- Modal scales in/out with opacity
-- Markmap nodes animate with 300ms duration
-- Panel snaps back elastically from under-minimum drag
-- All animations degrade gracefully (skip without breaking)
-- Visual verification via `pnpm tauri dev`
+- Theme switch fades editor opacity smoothly (150ms)
+- Tab switch cross-fades content (100ms)
+- Modal scales in/out instead of appearing/disappearing instantly
+- Markmap nodes animate on update (300ms D3)
+- Panel snap-back has elastic spring feel
+- No janky frame drops on any transition
+
+### Labels
+animation, styles, main.ts
 
 ---
 
-## Theme switch editor fade
-
-Fade editor opacity during theme switch to avoid flash of unstyled content.
+## Theme Switch Editor Fade
 
 ### Priority
 2
@@ -36,7 +31,7 @@ Fade editor opacity during theme switch to avoid flash of unstyled content.
 task
 
 ### Description
-In main.ts `setThemeById()` (lines 588-613):
+Add opacity fade to editor pane during theme switches in main.ts `setThemeById()` (lines 588-613):
 
 ```typescript
 editorPane.style.transition = "opacity 150ms ease";
@@ -50,24 +45,21 @@ requestAnimationFrame(() => {
 ```
 
 ### Design
-Double rAF ensures the browser paints the dimmed state before reconfiguring. If rAF doesn't fire (backgrounded tab), theme swaps without fade — acceptable degradation.
+Two rAF calls: outer to let browser paint the opacity drop, inner to restore after theme applies. If tab is backgrounded, rAF won't fire — theme swaps without fade, which is acceptable.
 
 ### Acceptance Criteria
-- Editor dims briefly during theme switch
-- No flash of unstyled content
-- Works across all 3 themes
+- Editor dips to 0.6 opacity then returns to 1 on theme switch
+- No flash or layout shift during transition
 
 ### Labels
-animation, theme
+animation, main.ts
 
 ### Dependencies
-blocks:layer-2-animations
+blocks:layer-2-epic
 
 ---
 
-## Tab switch fade
-
-Fade editor during tab switch for smooth content swap.
+## Tab Switch Fade
 
 ### Priority
 2
@@ -76,27 +68,22 @@ Fade editor during tab switch for smooth content swap.
 task
 
 ### Description
-In main.ts (lines 264-280), apply same fade pattern as theme switch but with opacity 0.5 and 100ms ease timing.
-
-### Design
-Shorter duration than theme switch (100ms vs 150ms) because tab switches are more frequent and need to feel snappy.
+Add opacity cross-fade when switching tabs in main.ts (lines 264-280). Same rAF pattern as theme switch: fade to 0.5, swap content, fade back. 100ms ease.
 
 ### Acceptance Criteria
-- Editor fades to 0.5 and back on tab switch
-- Content swap is invisible (happens during dim)
-- No perceptible delay on fast tab cycling
+- Content area fades to 0.5 opacity then returns when switching tabs
+- Transition completes within 100ms
+- No content flash or flicker
 
 ### Labels
-animation, tabs
+animation, main.ts
 
 ### Dependencies
-blocks:layer-2-animations
+blocks:layer-2-epic
 
 ---
 
-## Modal animation (CSS opacity + scale)
-
-Replace display:none toggle with opacity + pointer-events + transform for smooth modal in/out.
+## Modal Scale Animation
 
 ### Priority
 2
@@ -105,7 +92,7 @@ Replace display:none toggle with opacity + pointer-events + transform for smooth
 task
 
 ### Description
-In styles.css (lines 520-534), replace display-based show/hide with:
+Replace `display:none` show/hide with opacity + pointer-events + transform for the vimrc modal (styles.css:520-534):
 
 ```css
 .vimrc-overlay { opacity: 1; transition: opacity 200ms ease-out; }
@@ -114,28 +101,23 @@ In styles.css (lines 520-534), replace display-based show/hide with:
 .vimrc-overlay.hidden .vimrc-modal { transform: scale(0.97) translateY(4px); }
 ```
 
-No JS changes needed — existing classList toggle works.
-
-### Design
-Scale + translateY gives a subtle "dropping in from above" feel. pointer-events:none replaces display:none for hiding. Old browsers that don't support pointer-events could allow click-through, but Tauri WebKit supports it.
+No JS changes needed — existing classList toggle on `.hidden` continues to work.
 
 ### Acceptance Criteria
-- Modal fades and scales in on open
-- Modal fades and scales out on close
-- No interaction with content behind hidden modal
-- Existing keyboard shortcuts still work
+- Modal fades in with subtle scale-up from 0.97
+- Modal fades out with subtle scale-down and 4px drop
+- Clicks do not pass through when modal is hidden (pointer-events: none)
+- No JS changes required
 
 ### Labels
-animation, modal
+animation, styles
 
 ### Dependencies
-blocks:layer-2-animations
+blocks:layer-2-epic
 
 ---
 
-## Markmap animation duration
-
-Set 300ms transition duration on markmap node updates.
+## Markmap Animation Duration
 
 ### Priority
 2
@@ -144,28 +126,33 @@ Set 300ms transition duration on markmap node updates.
 task
 
 ### Description
-In main.ts (lines 154-161):
-- Add `duration: 300` to markmap options object
-- Set `(mm as any).options.duration = 300` after creation as fallback
+Configure markmap to use 300ms D3 transitions for node updates (main.ts:154-161):
+
+```typescript
+// In markmap options:
+duration: 300
+
+// After markmap instance created (fallback):
+(mm as any).options.duration = 300;
+```
 
 ### Design
-300ms gives smooth node repositioning. d3 interrupts previous transitions on fast typing, so nodes jump to final position — acceptable.
+Risk: markmap may ignore `duration` from `setData`. Setting it directly on the instance after creation is the fallback. On fast typing, D3 interrupts previous transition and jumps to final position — acceptable.
 
 ### Acceptance Criteria
-- Markmap nodes animate smoothly on content change
-- No visual stutter on fast typing (d3 interruption is fine)
+- Markmap nodes visibly animate on content change (not instant)
+- Duration is approximately 300ms
+- Fast typing doesn't cause errors, only interrupted animations
 
 ### Labels
-animation, mindmap
+animation, main.ts
 
 ### Dependencies
-blocks:layer-2-animations
+blocks:layer-2-epic
 
 ---
 
-## Debounce increase 50ms to 150ms
-
-Increase markmap update debounce to give transitions room to complete.
+## Debounce Increase
 
 ### Priority
 2
@@ -174,27 +161,27 @@ Increase markmap update debounce to give transitions room to complete.
 task
 
 ### Description
-In main.ts (line 197), change `debounce(..., 50)` to `debounce(..., 150)`.
+Increase markmap update debounce from 50ms to 150ms in main.ts (line 197):
 
-### Design
-150ms debounce + 300ms transition duration means transitions have room to breathe. Typing still feels responsive — 150ms is below the perception threshold for "laggy" feedback.
+```typescript
+debounce(…, 50)  →  debounce(…, 150)
+```
+
+This gives the 300ms D3 transitions room to complete before the next update interrupts them.
 
 ### Acceptance Criteria
-- Markmap updates feel smooth, not jittery
-- Typing still feels responsive
-- No perceptible delay in mindmap updates
+- Markmap update debounce set to 150ms
+- Typing at normal speed produces smooth markmap transitions rather than constant interruption
 
 ### Labels
-animation, mindmap, performance
+main.ts, performance
 
 ### Dependencies
-blocks:layer-2-animations
+blocks:layer-2-epic
 
 ---
 
-## Panel resize elastic snap-back
-
-Add rubber-band resistance below minimum width and elastic snap-back animation.
+## Panel Resize Elastic Snap-Back
 
 ### Priority
 2
@@ -203,25 +190,22 @@ Add rubber-band resistance below minimum width and elastic snap-back animation.
 task
 
 ### Description
-In main.ts (lines 556-578):
+Add rubber-band resistance and spring snap-back to panel resize in main.ts (lines 556-578):
 
-During drag: allow below 200px minimum with 0.3x rubber-band resistance factor.
-On mouseup: animate to clamped value with `cubic-bezier(0.34, 1.56, 0.64, 1)` easing.
-Clear transition after snap-back completes via transitionend listener.
+- During drag: allow panel below 200px minimum with 0.3x rubber-band resistance
+- On mouseup: animate to clamped value using `cubic-bezier(0.34, 1.56, 0.64, 1)` (spring curve)
+- Clear transition after snap-back completes (use `transitionend` listener)
 
 ### Design
-Rubber-band resistance (0.3x) gives tactile feedback that you're past the limit. Overshoot cubic-bezier creates a physical "snap" feel. transitionend cleanup prevents the transition from interfering with future drags.
-
-Failure mode: if transitionend doesn't fire, panel gets stuck with transition on future drags. Use a fallback setTimeout(300ms) cleanup.
+Risk: if `transitionend` doesn't fire (e.g. snap value equals current), transition property stays on element, slowing future drags. Defensive: also clear on next dragstart.
 
 ### Acceptance Criteria
-- Dragging below minimum shows resistance (panel moves slower)
-- Releasing below minimum snaps back with elastic animation
-- Future drags after snap-back work normally (transition cleared)
-- Works at various window widths
+- Dragging below 200px shows resistance (moves slower than cursor)
+- Releasing below 200px snaps back with spring bounce
+- After snap-back, resize drags at full speed again (no residual transition)
 
 ### Labels
-animation, interaction, panel
+animation, main.ts, interaction
 
 ### Dependencies
-blocks:layer-2-animations
+blocks:layer-2-epic

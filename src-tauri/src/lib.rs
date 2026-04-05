@@ -254,3 +254,75 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_markdown_single_heading() {
+        let root = parse_markdown("# Hello");
+        assert_eq!(root.content, "Hello");
+        assert_eq!(root.depth, 0);
+        assert!(root.children.is_empty());
+    }
+
+    #[test]
+    fn parse_markdown_nested_headings() {
+        let root = parse_markdown("# Top\n## Child A\n## Child B");
+        assert_eq!(root.content, "Top");
+        assert_eq!(root.children.len(), 2);
+        assert_eq!(root.children[0].content, "Child A");
+        assert_eq!(root.children[1].content, "Child B");
+    }
+
+    #[test]
+    fn parse_markdown_heading_with_list() {
+        let root = parse_markdown("# Root\n- item one\n- item two");
+        assert_eq!(root.content, "Root");
+        assert_eq!(root.children.len(), 2);
+        assert_eq!(root.children[0].content, "item one");
+        assert_eq!(root.children[1].content, "item two");
+    }
+
+    #[test]
+    fn parse_markdown_nested_list() {
+        let root = parse_markdown("# Root\n- parent\n  - child");
+        assert_eq!(root.content, "Root");
+        assert_eq!(root.children.len(), 1);
+        assert_eq!(root.children[0].content, "parent");
+        assert_eq!(root.children[0].children.len(), 1);
+        assert_eq!(root.children[0].children[0].content, "child");
+    }
+
+    #[test]
+    fn parse_markdown_empty_input() {
+        let root = parse_markdown("");
+        assert_eq!(root.content, "");
+        assert!(root.children.is_empty());
+    }
+
+    #[test]
+    fn parse_markdown_depths_are_sequential() {
+        let root = parse_markdown("# A\n## B\n### C");
+        assert_eq!(root.depth, 0);
+        assert_eq!(root.children[0].depth, 1);
+        assert_eq!(root.children[0].children[0].depth, 2);
+    }
+
+    #[test]
+    fn parse_list_produces_correct_items() {
+        // parse_list is exercised indirectly through parse_markdown
+        let root = parse_markdown("# Title\n- alpha\n- beta\n- gamma");
+        assert_eq!(root.children.len(), 3);
+        assert_eq!(root.children[0].content, "alpha");
+        assert_eq!(root.children[1].content, "beta");
+        assert_eq!(root.children[2].content, "gamma");
+    }
+
+    #[test]
+    fn parse_markdown_inline_formatting() {
+        let root = parse_markdown("# **Bold** title");
+        assert_eq!(root.content, "<strong>Bold</strong> title");
+    }
+}

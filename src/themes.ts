@@ -18,6 +18,12 @@ export interface ChromeColors {
   toolbarBorder: string;
   modeBg: string;
   modeFg: string;
+  modeNormalBg: string;
+  modeNormalFg: string;
+  modeInsertBg: string;
+  modeInsertFg: string;
+  modeVisualBg: string;
+  modeVisualFg: string;
 }
 
 export interface ThemeEntry {
@@ -57,6 +63,12 @@ export const THEMES: ThemeEntry[] = [
       toolbarBorder: "rgba(255, 255, 255, 0.08)",
       modeBg: "rgba(224, 144, 80, 0.10)",
       modeFg: "#e09050",
+      modeNormalBg: "rgba(224, 144, 80, 0.10)",
+      modeNormalFg: "#e09050",
+      modeInsertBg: "rgba(140, 194, 101, 0.10)",
+      modeInsertFg: "#8cc265",
+      modeVisualBg: "rgba(196, 155, 224, 0.10)",
+      modeVisualFg: "#c49be0",
     },
     branchColors: DARK_BRANCHES,
   },
@@ -82,6 +94,12 @@ export const THEMES: ThemeEntry[] = [
       toolbarBorder: "rgba(0, 0, 0, 0.06)",
       modeBg: "rgba(196, 101, 42, 0.08)",
       modeFg: "#c4652a",
+      modeNormalBg: "rgba(196, 101, 42, 0.08)",
+      modeNormalFg: "#c4652a",
+      modeInsertBg: "rgba(58, 140, 42, 0.08)",
+      modeInsertFg: "#3a8c2a",
+      modeVisualBg: "rgba(123, 75, 176, 0.08)",
+      modeVisualFg: "#7b4bb0",
     },
     branchColors: LIGHT_BRANCH_COLORS,
   },
@@ -107,6 +125,12 @@ export const THEMES: ThemeEntry[] = [
       toolbarBorder: "rgba(255, 240, 220, 0.08)",
       modeBg: "rgba(212, 160, 84, 0.12)",
       modeFg: "#d4a054",
+      modeNormalBg: "rgba(212, 160, 84, 0.12)",
+      modeNormalFg: "#d4a054",
+      modeInsertBg: "rgba(140, 184, 96, 0.12)",
+      modeInsertFg: "#8cb860",
+      modeVisualBg: "rgba(180, 140, 216, 0.12)",
+      modeVisualFg: "#b48cd8",
     },
     branchColors: DUSK_BRANCH_COLORS,
   },
@@ -134,4 +158,10 @@ export function applyChromeColors(chrome: ChromeColors): void {
   s.setProperty("--toolbar-border", chrome.toolbarBorder);
   s.setProperty("--mode-bg", chrome.modeBg);
   s.setProperty("--mode-fg", chrome.modeFg);
+  s.setProperty("--mode-normal-bg", chrome.modeNormalBg);
+  s.setProperty("--mode-normal-fg", chrome.modeNormalFg);
+  s.setProperty("--mode-insert-bg", chrome.modeInsertBg);
+  s.setProperty("--mode-insert-fg", chrome.modeInsertFg);
+  s.setProperty("--mode-visual-bg", chrome.modeVisualBg);
+  s.setProperty("--mode-visual-fg", chrome.modeVisualFg);
 }

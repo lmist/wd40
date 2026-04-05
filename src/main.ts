@@ -118,6 +118,7 @@ const debouncedUpdate = debounce((md: string) => updateMarkmap(md), 150);
 
 // --- Vim mode indicator ---
 const vimModeEl = document.getElementById("vim-mode")!;
+vimModeEl.dataset.mode = "normal";
 
 // --- Editor setup ---
 const editorPane = document.getElementById("editor-pane")!;
@@ -190,6 +191,7 @@ try {
   cm?.on("vim-mode-change", (ev: { mode: string; subMode?: string }) => {
     currentVimMode = ev.mode;
     vimModeEl.textContent = formatVimModeLabel(ev.mode, ev.subMode);
+    vimModeEl.dataset.mode = ev.mode;
   });
 } catch (_) {}
 

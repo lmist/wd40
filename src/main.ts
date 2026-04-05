@@ -1,6 +1,5 @@
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from "@codemirror/view";
 import { EditorState, Compartment, Prec } from "@codemirror/state";
-import { markdown } from "@codemirror/lang-markdown";
 import { defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
@@ -11,8 +10,10 @@ import { zoomTransform } from "d3-zoom";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { initFonts, setFont, getSavedFont, getFontNames } from "./fonts";
-import { headingMarkers } from "./heading-markers";
 import { THEMES, getThemeById, applyChromeColors, ThemeEntry } from "./themes";
+import { indentedTextToMarkdown, markdownToIndentedText } from "./transform";
+import { outlinerKeymap, setClimbCallbacks, isClimbing, endClimb, handleClimbDigit } from "./outliner";
+import { showHud, updateHud, hideHud } from "./level-hud";
 
 function uniqueTabName(existing: string[]): string {
   const set = new Set(existing);
@@ -32,19 +33,30 @@ interface Tab {
 let tabs: Tab[] = [];
 let activeTabId = "";
 
-const INITIAL_MD = `# Welcome
-## Start with a simple heading
-### Each heading becomes a branch on the map
-### Use short phrases instead of long paragraphs
-## Try planning something familiar
-### Weekend dinner
-### Family trip
-### Study notes
-## A calm way to work
-### Write on the left
-### Scan the structure on the right
-### Adjust keyboard rules any time from Keyboard
+const INITIAL_CONTENT = `Welcome
+  Start with a simple heading
+    Each heading becomes a branch on the map
+    Use short phrases instead of long paragraphs
+  Try planning something familiar
+    Weekend dinner
+    Family trip
+    Study notes
+  A calm way to work
+    Write on the left
+    Scan the structure on the right
+    Adjust keyboard rules any time from Keyboard
 `;
+
+/** Detect if content is legacy markdown (has # headings) and convert to indented text. */
+export function migrateContent(content: string): string {
+  // If any non-empty line starts with #, treat as legacy markdown
+  const lines = content.split("\n");
+  const hasHeadings = lines.some(l => /^#{1,6}\s/.test(l));
+  if (hasHeadings) {
+    return markdownToIndentedText(content);
+  }
+  return content;
+}
 
 // --- Theme state ---
 function getInitialThemeEntry(): ThemeEntry {
@@ -136,10 +148,19 @@ function toggleShortcutsModal() {
 // --- Editor setup ---
 const editorPane = document.getElementById("editor-pane")!;
 const themeCompartment = new Compartment();
+const vimCompartment = new Compartment();
+const lineNumbersCompartment = new Compartment();
+
+// Vim enabled state (persisted)
+const VIM_ENABLED_KEY = "vim-enabled";
+let vimEnabled = localStorage.getItem(VIM_ENABLED_KEY) !== "false"; // default: true
+
+// Line numbers off by default (toggled via `set nu` in vimrc)
+let lineNumbersEnabled = false;
 
 const editor = new EditorView({
   state: EditorState.create({
-    doc: INITIAL_MD,
+    doc: INITIAL_CONTENT,
     extensions: [
       // Shift+? must beat vim's reverse-search binding in every mode
       Prec.highest(keymap.of([{
@@ -147,17 +168,16 @@ const editor = new EditorView({
         run: () => { toggleShortcutsModal(); return true; },
         preventDefault: true,
       }])),
-      vim(),
+      vimCompartment.of(vimEnabled ? vim() : []),
       drawSelection({ cursorBlinkRate: 0 }),
-      lineNumbers(),
+      lineNumbersCompartment.of(lineNumbersEnabled ? lineNumbers() : []),
       highlightActiveLine(),
       highlightActiveLineGutter(),
       history(),
-      markdown(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       themeCompartment.of(currentThemeEntry.extension),
-      headingMarkers,
       highlightSelectionMatches(),
+      outlinerKeymap,
       keymap.of([
         ...defaultKeymap,
         ...historyKeymap,
@@ -165,17 +185,51 @@ const editor = new EditorView({
       ]),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
-          debouncedUpdate(update.state.doc.toString());
+          const indented = update.state.doc.toString();
+          const md = indentedTextToMarkdown(indented);
+          debouncedUpdate(md);
         }
       }),
       EditorView.theme({
         "&": { height: "100%" },
         ".cm-scroller": { overflow: "auto" },
       }),
+      EditorView.domEventHandlers({
+        keydown(event: KeyboardEvent) {
+          // During climb mode, intercept digits and letters
+          if (isClimbing()) {
+            const digit = parseInt(event.key);
+            if (!isNaN(digit) && digit >= 1 && digit <= 9) {
+              event.preventDefault();
+              handleClimbDigit(editor, digit);
+              return true;
+            }
+            // Any letter or printable char ends climb
+            if (event.key.length === 1 && !event.metaKey && !event.ctrlKey && !event.altKey) {
+              endClimb();
+              // Don't prevent default — let the character be typed
+              return false;
+            }
+            if (event.key === "Escape") {
+              event.preventDefault();
+              endClimb();
+              return true;
+            }
+          }
+          return false;
+        },
+      }),
     ],
   }),
   parent: editorPane,
 });
+
+// Wire up climb callbacks to the HUD
+setClimbCallbacks(
+  (level) => showHud(editor, level),  // onClimbStart
+  (level) => updateHud(level),         // onClimbStep
+  () => hideHud(),                     // onClimbEnd
+);
 
 let currentVimMode = "normal";
 
@@ -262,7 +316,7 @@ function switchTab(id: string) {
     editor.dispatch({
       changes: { from: 0, to: editor.state.doc.length, insert: target.content },
     });
-    updateMarkmap(target.content);
+    updateMarkmap(indentedTextToMarkdown(target.content));
     fileNameEl.textContent = target.name;
     renderTabBar();
     requestAnimationFrame(() => {
@@ -280,20 +334,20 @@ function createNewTab() {
   const current = tabs.find(t => t.id === activeTabId);
   if (current) current.content = editor.state.doc.toString();
   const name = uniqueTabName(tabs.map(t => t.name));
-  const tab: Tab = { id: crypto.randomUUID(), name, content: "# " + name + "\n" };
+  const tab: Tab = { id: crypto.randomUUID(), name, content: name + "\n" };
   tabs.push(tab);
   activeTabId = tab.id;
   editor.dispatch({
     changes: { from: 0, to: editor.state.doc.length, insert: tab.content },
   });
-  updateMarkmap(tab.content);
+  updateMarkmap(indentedTextToMarkdown(tab.content));
   fileNameEl.textContent = tab.name;
   renderTabBar();
   editor.focus();
 }
 
 // Initialize first tab
-const firstTab: Tab = { id: crypto.randomUUID(), name: "Welcome note", content: INITIAL_MD };
+const firstTab: Tab = { id: crypto.randomUUID(), name: "Welcome note", content: INITIAL_CONTENT };
 tabs.push(firstTab);
 activeTabId = firstTab.id;
 fileNameEl.textContent = firstTab.name;
@@ -422,6 +476,40 @@ function enterResizeMode(initialDelta: number) {
 (Vim as any).mapCommand("`h", "action", "shrinkPane", {}, { context: "normal" });
 (Vim as any).mapCommand("`l", "action", "expandPane", {}, { context: "normal" });
 
+// --- Vim toggle ---
+function setVimEnabled(enabled: boolean) {
+  vimEnabled = enabled;
+  localStorage.setItem(VIM_ENABLED_KEY, String(enabled));
+  editor.dispatch({
+    effects: vimCompartment.reconfigure(enabled ? vim() : []),
+  });
+
+  // Update vim mode display
+  if (enabled) {
+    vimModeEl.style.display = "";
+    vimModeEl.textContent = "Normal";
+    vimModeEl.dataset.mode = "normal";
+    currentVimMode = "normal";
+    // Re-apply vimrc after enabling
+    requestAnimationFrame(() => applyVimrc());
+  } else {
+    vimModeEl.style.display = "none";
+    currentVimMode = "normal";
+  }
+
+  // Update toggle button
+  const toggle = document.getElementById("vim-toggle") as HTMLInputElement | null;
+  if (toggle) toggle.checked = enabled;
+}
+
+// --- `set nu` / `set nonu` support ---
+function setLineNumbers(enabled: boolean) {
+  lineNumbersEnabled = enabled;
+  editor.dispatch({
+    effects: lineNumbersCompartment.reconfigure(enabled ? lineNumbers() : []),
+  });
+}
+
 // --- .vimrc support ---
 const VIMRC_KEY = "vimrc";
 const DEFAULT_VIMRC = [
@@ -441,7 +529,15 @@ function applyVimrc() {
   if (!cm) return;
   for (const raw of vimrc.split("\n")) {
     const line = raw.trim();
-    if (!line || line.startsWith('"')) continue; // skip empty lines and comments
+    if (!line || line.startsWith('"')) continue;
+
+    // Handle `set nu` / `set nonu` / `set number` / `set nonumber`
+    if (/^set\s+(no)?(nu|number)$/.test(line)) {
+      const hasNo = line.includes("no");
+      setLineNumbers(!hasNo);
+      continue;
+    }
+
     try {
       (Vim as any).handleEx(cm, line);
     } catch (_) {
@@ -531,7 +627,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 // --- Initial render ---
-updateMarkmap(INITIAL_MD);
+updateMarkmap(indentedTextToMarkdown(INITIAL_CONTENT));
 
 // --- Toolbar controls ---
 document.getElementById("btn-fit")!.addEventListener("click", () => mm?.fit());
@@ -666,8 +762,8 @@ function setThemeById(id: string) {
 
     // Re-render markmap with new colors
     applyMarkmapTheme();
-    const md = editor.state.doc.toString();
-    updateMarkmap(md);
+    const indented = editor.state.doc.toString();
+    updateMarkmap(indentedTextToMarkdown(indented));
 
     requestAnimationFrame(() => {
       editorPane.style.opacity = "1";
@@ -719,6 +815,19 @@ for (const name of getFontNames()) {
 fontPicker.addEventListener("change", () => {
   setFont(fontPicker.value);
 });
+
+// --- Vim toggle ---
+const vimToggle = document.getElementById("vim-toggle") as HTMLInputElement;
+vimToggle.checked = vimEnabled;
+vimToggle.addEventListener("change", () => {
+  setVimEnabled(vimToggle.checked);
+  editor.focus();
+});
+
+// Hide vim mode badge if vim is disabled on startup
+if (!vimEnabled) {
+  vimModeEl.style.display = "none";
+}
 
 // Load saved font on startup
 initFonts();

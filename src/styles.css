@@ -1,4 +1,5 @@
 :root {
+  --titlebar-height: 46px;
   --divider-width: 1px;
   --mono-font: "SF Mono", "Menlo";
   --ui-font: -apple-system, "SF Pro Text", "SF Pro Display";
@@ -6,6 +7,18 @@
   --chrome-soft: rgba(255, 255, 255, 0.035);
   --pill-soft-bg: rgba(255, 255, 255, 0.05);
   --pill-soft-border: rgba(255, 255, 255, 0.08);
+  --editor-font-family: var(--mono-font);
+  --editor-font-size: 13.5px;
+  --editor-line-height: 1.75;
+  --editor-letter-spacing: 0;
+  --editor-padding-inline: 20px;
+  --editor-padding-block-start: 24px;
+  --editor-padding-block-end: 72px;
+  --editor-content-max-width: 100%;
+  --editor-gutter-opacity: 1;
+  --editor-active-line-bg: rgba(10, 132, 255, 0.10);
+  --editor-selection-bg: rgba(10, 132, 255, 0.12);
+  --editor-selection-focus-bg: rgba(10, 132, 255, 0.20);
 }
 
 /* Dark theme (default) — Apple HIG */
@@ -74,56 +87,137 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Tab bar — vibrancy material */
-#tab-bar {
+/* Titlebar — desktop chrome */
+#titlebar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 38px;
-  display: flex;
+  height: var(--titlebar-height);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  padding: 0 12px 0 80px;
-  gap: 2px;
+  gap: 12px;
+  padding: 0 14px 0 84px;
   background: color-mix(in srgb, var(--statusbar-bg) 82%, transparent);
   backdrop-filter: blur(20px) saturate(1.2);
   -webkit-backdrop-filter: blur(20px) saturate(1.2);
   border-bottom: 0.5px solid var(--border-subtle);
-  overflow-x: auto;
   user-select: none;
   z-index: 50;
+}
+
+#tab-bar {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 0 4px;
+  scrollbar-width: none;
+}
+
+#tab-bar::-webkit-scrollbar {
+  display: none;
 }
 
 #tab-bar button {
   background: transparent;
   border: 1px solid transparent;
-  color: var(--fg-dim);
+  color: var(--fg-secondary);
   font-family: var(--ui-font);
   font-size: 12px;
   font-weight: 500;
-  padding: 4px 12px;
-  border-radius: 4px;
+  padding: 6px 12px;
+  border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 #tab-bar button.active {
   background: var(--chrome-elevated);
   border-color: var(--pill-soft-border);
   color: var(--fg);
-  box-shadow: 0 0.5px 2.5px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
 #tab-bar button:hover:not(.active) {
-  color: var(--fg-secondary);
+  color: var(--fg);
   background: var(--chrome-soft);
+}
+
+#titlebar .titlebar-brand,
+#titlebar .titlebar-actions {
+  display: flex;
+  align-items: center;
+}
+
+#titlebar .titlebar-brand {
+  gap: 8px;
+  padding: 6px 10px 6px 8px;
+  border-radius: 999px;
+  background: var(--pill-soft-bg);
+  border: 1px solid var(--pill-soft-border);
+  color: var(--fg-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.titlebar-brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+#titlebar .titlebar-actions {
+  gap: 10px;
+  min-width: 0;
+}
+
+#titlebar-map-summary {
+  color: var(--fg-secondary);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+#btn-new-tab {
+  height: 28px;
+  border: 1px solid var(--pill-soft-border);
+  border-radius: 999px;
+  background: var(--pill-soft-bg);
+  color: var(--fg-secondary);
+  font-family: var(--ui-font);
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+#btn-new-tab:hover {
+  color: var(--fg);
+  border-color: color-mix(in srgb, var(--accent) 18%, var(--pill-soft-border));
+  background: color-mix(in srgb, var(--accent) 10%, var(--pill-soft-bg));
+}
+
+#btn-new-tab:active {
+  transform: scale(0.98);
 }
 
 #app {
   display: flex;
-  height: calc(100% - 32px);
-  padding-top: 38px;
+  height: calc(100% - 32px - var(--titlebar-height));
+  margin-top: var(--titlebar-height);
 }
 
 /* Active pane indicator */
@@ -293,6 +387,7 @@ html, body {
 }
 
 #theme-picker,
+#editor-style-picker,
 #font-picker {
   background: var(--pill-soft-bg);
   border: 1px solid var(--pill-soft-border);
@@ -308,22 +403,26 @@ html, body {
 }
 
 #theme-picker:hover,
+#editor-style-picker:hover,
 #font-picker:hover {
   border-color: rgba(255, 255, 255, 0.14);
   color: var(--fg);
 }
 
 [data-theme="light"] #theme-picker:hover,
+[data-theme="light"] #editor-style-picker:hover,
 [data-theme="light"] #font-picker:hover {
   border-color: rgba(0, 0, 0, 0.14);
 }
 
 #theme-picker:focus,
+#editor-style-picker:focus,
 #font-picker:focus {
   border-color: var(--accent);
 }
 
 #theme-picker option,
+#editor-style-picker option,
 #font-picker option {
   background: var(--bg);
   color: var(--fg);
@@ -433,13 +532,13 @@ html, body {
 /* CodeMirror */
 .cm-editor {
   height: 100%;
-  font-size: 13.5px;
+  font-size: var(--editor-font-size);
   background: var(--bg-editor) !important;
 }
 
 .cm-editor .cm-scroller {
-  font-family: var(--mono-font);
-  line-height: 1.75;
+  font-family: var(--editor-font-family);
+  line-height: var(--editor-line-height);
 }
 
 .cm-editor .cm-gutters {
@@ -455,7 +554,7 @@ html, body {
 }
 
 .cm-editor .cm-activeLine {
-  background: var(--accent-dim) !important;
+  background: var(--editor-active-line-bg) !important;
 }
 
 .cm-editor .cm-cursor {
@@ -463,28 +562,25 @@ html, body {
 }
 
 .cm-editor .cm-selectionBackground {
-  background: rgba(10, 132, 255, 0.12) !important;
+  background: var(--editor-selection-bg) !important;
 }
 
 .cm-editor.cm-focused .cm-selectionBackground {
-  background: rgba(10, 132, 255, 0.20) !important;
+  background: var(--editor-selection-focus-bg) !important;
 }
 
 .cm-fat-cursor .cm-cursor {
-  background: rgba(10, 132, 255, 0.5) !important;
+  background: color-mix(in srgb, var(--accent) 45%, transparent) !important;
   border: none !important;
 }
 
-[data-theme="light"] .cm-editor .cm-selectionBackground {
-  background: rgba(0, 122, 255, 0.10) !important;
+[data-editor-style="tufte"] .cm-editor .cm-gutters {
+  font-family: "SF Mono", "Menlo";
+  font-size: 11px;
 }
 
-[data-theme="light"] .cm-editor.cm-focused .cm-selectionBackground {
-  background: rgba(0, 122, 255, 0.16) !important;
-}
-
-[data-theme="light"] .cm-fat-cursor .cm-cursor {
-  background: rgba(0, 122, 255, 0.45) !important;
+[data-editor-style="tufte"] .cm-editor .cm-content {
+  color: color-mix(in srgb, var(--fg) 92%, var(--bg-editor));
 }
 
 .cm-vim-panel {

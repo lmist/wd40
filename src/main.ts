@@ -156,8 +156,8 @@ function getMarkmapOpts() {
     colorFreezeLevel: 2,
     color: currentThemeEntry.branchColors,
     initialExpandLevel: -1,
-    paddingX: 16,
-    spacingVertical: 8,
+    paddingX: 20,
+    spacingVertical: 12,
   });
 }
 
@@ -555,6 +555,7 @@ let isDragging = false;
 
 divider.addEventListener("mousedown", (e) => {
   isDragging = true;
+  editorPane.style.transition = "none";
   divider.classList.add("dragging");
   document.body.style.cursor = "col-resize";
   document.body.style.userSelect = "none";
@@ -564,8 +565,16 @@ divider.addEventListener("mousedown", (e) => {
 document.addEventListener("mousemove", (e) => {
   if (!isDragging) return;
   const appWidth = document.getElementById("app")!.clientWidth;
-  const newWidth = Math.max(200, Math.min(e.clientX, appWidth - 200));
-  editorPane.style.width = `${newWidth}px`;
+  const minW = 200;
+  const maxW = appWidth - 200;
+  let desired = e.clientX;
+  // Rubber-band resistance below minimum
+  if (desired < minW) {
+    desired = minW + (desired - minW) * 0.3;
+  } else if (desired > maxW) {
+    desired = maxW + (desired - maxW) * 0.3;
+  }
+  editorPane.style.width = `${desired}px`;
 });
 
 document.addEventListener("mouseup", () => {
@@ -574,6 +583,22 @@ document.addEventListener("mouseup", () => {
     divider.classList.remove("dragging");
     document.body.style.cursor = "";
     document.body.style.userSelect = "";
+    const appWidth = document.getElementById("app")!.clientWidth;
+    const currentWidth = editorPane.offsetWidth;
+    const minW = 200;
+    const maxW = appWidth - 200;
+    if (currentWidth < minW || currentWidth > maxW) {
+      const clamped = Math.max(minW, Math.min(currentWidth, maxW));
+      editorPane.style.transition = "width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)";
+      editorPane.style.width = `${clamped}px`;
+      const clearTransition = () => {
+        editorPane.style.transition = "";
+        editorPane.removeEventListener("transitionend", clearTransition);
+      };
+      editorPane.addEventListener("transitionend", clearTransition);
+    } else {
+      editorPane.style.transition = "";
+    }
     mm?.fit();
   }
 });

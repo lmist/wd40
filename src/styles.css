@@ -95,7 +95,7 @@ html, body {
   right: 0;
   height: var(--titlebar-height);
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   padding: 0 14px 0 84px;
@@ -122,6 +122,9 @@ html, body {
 }
 
 #tab-bar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: transparent;
   border: 1px solid transparent;
   color: var(--fg-secondary);
@@ -149,31 +152,19 @@ html, body {
   background: var(--chrome-soft);
 }
 
-#titlebar .titlebar-brand,
 #titlebar .titlebar-actions {
   display: flex;
   align-items: center;
 }
 
-#titlebar .titlebar-brand {
-  gap: 8px;
-  padding: 6px 10px 6px 8px;
-  border-radius: 999px;
-  background: var(--pill-soft-bg);
-  border: 1px solid var(--pill-soft-border);
-  color: var(--fg-secondary);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-
-.titlebar-brand-dot {
+#tab-bar button.active::before {
+  content: "";
   width: 8px;
   height: 8px;
   border-radius: 999px;
   background: var(--accent);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent);
+  flex-shrink: 0;
 }
 
 #titlebar .titlebar-actions {

@@ -46,6 +46,12 @@ describe("applyChromeColors", () => {
       toolbarBorder: "#777777",
       modeBg: "#880000",
       modeFg: "#ff8888",
+      modeNormalBg: "#880000",
+      modeNormalFg: "#ff8888",
+      modeInsertBg: "#008800",
+      modeInsertFg: "#88ff88",
+      modeVisualBg: "#000088",
+      modeVisualFg: "#8888ff",
     };
 
     applyChromeColors(chrome);

@@ -265,6 +265,22 @@ html, body {
   font-size: 10px;
   letter-spacing: 0.3px;
   font-family: var(--ui-font);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+#vim-mode[data-mode="normal"] {
+  background: var(--mode-normal-bg);
+  color: var(--mode-normal-fg);
+}
+
+#vim-mode[data-mode="insert"] {
+  background: var(--mode-insert-bg);
+  color: var(--mode-insert-fg);
+}
+
+#vim-mode[data-mode="visual"] {
+  background: var(--mode-visual-bg);
+  color: var(--mode-visual-fg);
 }
 
 #file-name {

@@ -1,5 +1,5 @@
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from "@codemirror/view";
-import { EditorState, Compartment } from "@codemirror/state";
+import { EditorState, Compartment, Prec } from "@codemirror/state";
 import { markdown } from "@codemirror/lang-markdown";
 import { defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
@@ -120,6 +120,19 @@ const debouncedUpdate = debounce((md: string) => updateMarkmap(md), 150);
 const vimModeEl = document.getElementById("vim-mode")!;
 vimModeEl.dataset.mode = "normal";
 
+// --- Shortcuts modal (early ref for editor keybinding) ---
+const shortcutsOverlayEl = document.getElementById("shortcuts-overlay")!;
+function toggleShortcutsModal() {
+  if (shortcutsOverlayEl.classList.contains("hidden")) {
+    // Close vimrc modal if open
+    const vimrcOv = document.getElementById("vimrc-overlay")!;
+    if (!vimrcOv.classList.contains("hidden")) vimrcOv.classList.add("hidden");
+    shortcutsOverlayEl.classList.remove("hidden");
+  } else {
+    shortcutsOverlayEl.classList.add("hidden");
+  }
+}
+
 // --- Editor setup ---
 const editorPane = document.getElementById("editor-pane")!;
 const themeCompartment = new Compartment();
@@ -128,6 +141,12 @@ const editor = new EditorView({
   state: EditorState.create({
     doc: INITIAL_MD,
     extensions: [
+      // Shift+? must beat vim's reverse-search binding in every mode
+      Prec.highest(keymap.of([{
+        key: "Shift-?",
+        run: () => { toggleShortcutsModal(); return true; },
+        preventDefault: true,
+      }])),
       vim(),
       drawSelection({ cursorBlinkRate: 0 }),
       lineNumbers(),
@@ -479,24 +498,19 @@ vimrcOverlay.addEventListener("keydown", (e) => {
 applyVimrc();
 
 // --- Keyboard shortcuts modal ---
-const shortcutsOverlay = document.getElementById("shortcuts-overlay")!;
 const shortcutsCloseBtn = document.getElementById("shortcuts-close")!;
 
-function openShortcuts() {
-  shortcutsOverlay.classList.remove("hidden");
-}
-
 function closeShortcuts() {
-  shortcutsOverlay.classList.add("hidden");
+  shortcutsOverlayEl.classList.add("hidden");
   editor.focus();
 }
 
 shortcutsCloseBtn.addEventListener("click", closeShortcuts);
-shortcutsOverlay.addEventListener("click", (e) => {
-  if (e.target === shortcutsOverlay) closeShortcuts();
+shortcutsOverlayEl.addEventListener("click", (e) => {
+  if (e.target === shortcutsOverlayEl) closeShortcuts();
 });
 
-shortcutsOverlay.addEventListener("keydown", (e) => {
+shortcutsOverlayEl.addEventListener("keydown", (e) => {
   if (e.key === "Escape" || e.key === "?") {
     e.stopPropagation();
     e.preventDefault();
@@ -504,21 +518,15 @@ shortcutsOverlay.addEventListener("keydown", (e) => {
   }
 });
 
-// Shift+? to open shortcuts (only when not typing in an input)
+// Shift+? to open shortcuts — works in any pane, any vim mode, anywhere
+// (CodeMirror is handled by the Prec.highest keybinding in the editor setup)
 document.addEventListener("keydown", (e) => {
   if (e.key === "?" && !e.metaKey && !e.ctrlKey && !e.altKey) {
-    const tag = (e.target as HTMLElement)?.tagName;
-    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-    // Don't trigger in insert mode
-    if (currentVimMode === "insert") return;
-    // Don't trigger if vimrc modal is open
-    if (!vimrcOverlay.classList.contains("hidden")) return;
+    // Only skip if user is typing in the vimrc textarea
+    const target = e.target as HTMLElement;
+    if (target.id === "vimrc-editor") return;
     e.preventDefault();
-    if (!shortcutsOverlay.classList.contains("hidden")) {
-      closeShortcuts();
-    } else {
-      openShortcuts();
-    }
+    toggleShortcutsModal();
   }
 });
 

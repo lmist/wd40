@@ -128,7 +128,7 @@ const editor = new EditorView({
     doc: INITIAL_MD,
     extensions: [
       vim(),
-      drawSelection(),
+      drawSelection({ cursorBlinkRate: 0 }),
       lineNumbers(),
       highlightActiveLine(),
       highlightActiveLineGutter(),

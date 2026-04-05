@@ -1,59 +1,59 @@
 :root {
   --divider-width: 1px;
   --mono-font: "SF Mono", "Menlo", monospace;
-  --ui-font: "Avenir Next", "Segoe UI", sans-serif;
+  --ui-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
   --chrome-elevated: rgba(255, 255, 255, 0.06);
   --chrome-soft: rgba(255, 255, 255, 0.035);
   --pill-soft-bg: rgba(255, 255, 255, 0.05);
   --pill-soft-border: rgba(255, 255, 255, 0.08);
 }
 
-/* Dark theme (default) — warm with depth */
+/* Dark theme (default) — Cupertino Dark */
 :root, [data-theme="dark"] {
-  --bg: #1a1a1c;
-  --bg-surface: #202022;
-  --bg-editor: #17171a;
-  --fg: #e8e6e3;
-  --fg-dim: #555553;
-  --fg-secondary: #8a8a88;
-  --accent: #e09050;
-  --accent-dim: rgba(224, 144, 80, 0.10);
-  --accent-hover: rgba(224, 144, 80, 0.18);
-  --accent-secondary: #6bafbd;
-  --border: rgba(255, 255, 255, 0.07);
-  --statusbar-bg: #17171a;
-  --toolbar-bg: rgba(32, 32, 34, 0.88);
+  --bg: #1c1c1e;
+  --bg-surface: #2c2c2e;
+  --bg-editor: #1c1c1e;
+  --fg: #f5f5f7;
+  --fg-dim: #48484a;
+  --fg-secondary: #8e8e93;
+  --accent: #0A84FF;
+  --accent-dim: rgba(10, 132, 255, 0.10);
+  --accent-hover: rgba(10, 132, 255, 0.18);
+  --accent-secondary: #64D2FF;
+  --border: rgba(255, 255, 255, 0.08);
+  --statusbar-bg: #1c1c1e;
+  --toolbar-bg: rgba(44, 44, 46, 0.88);
   --toolbar-border: rgba(255, 255, 255, 0.08);
-  --mode-bg: rgba(224, 144, 80, 0.10);
-  --mode-fg: #e09050;
+  --mode-bg: rgba(10, 132, 255, 0.12);
+  --mode-fg: #0A84FF;
   --chrome-elevated: rgba(255, 255, 255, 0.06);
-  --chrome-soft: rgba(255, 255, 255, 0.035);
-  --pill-soft-bg: rgba(255, 255, 255, 0.045);
+  --chrome-soft: rgba(255, 255, 255, 0.04);
+  --pill-soft-bg: rgba(255, 255, 255, 0.05);
   --pill-soft-border: rgba(255, 255, 255, 0.08);
 }
 
-/* Light theme — warm paper with real color */
+/* Light theme — Cupertino Light */
 [data-theme="light"] {
-  --bg: #f5f4f1;
-  --bg-surface: #f0efec;
-  --bg-editor: #fdfcfa;
-  --fg: #1a1a1a;
-  --fg-dim: #a8a8a6;
-  --fg-secondary: #6e6e6c;
-  --accent: #c4652a;
-  --accent-dim: rgba(196, 101, 42, 0.07);
-  --accent-hover: rgba(196, 101, 42, 0.14);
-  --accent-secondary: #2878a8;
-  --border: rgba(0, 0, 0, 0.07);
-  --statusbar-bg: #eae9e5;
-  --toolbar-bg: rgba(250, 249, 247, 0.92);
-  --toolbar-border: rgba(0, 0, 0, 0.06);
-  --mode-bg: rgba(196, 101, 42, 0.08);
-  --mode-fg: #c4652a;
+  --bg: #f2f2f7;
+  --bg-surface: #ffffff;
+  --bg-editor: #ffffff;
+  --fg: #1c1c1e;
+  --fg-dim: #aeaeb2;
+  --fg-secondary: #8e8e93;
+  --accent: #007AFF;
+  --accent-dim: rgba(0, 122, 255, 0.08);
+  --accent-hover: rgba(0, 122, 255, 0.14);
+  --accent-secondary: #5AC8FA;
+  --border: rgba(60, 60, 67, 0.12);
+  --statusbar-bg: #f2f2f7;
+  --toolbar-bg: rgba(255, 255, 255, 0.92);
+  --toolbar-border: rgba(60, 60, 67, 0.10);
+  --mode-bg: rgba(0, 122, 255, 0.08);
+  --mode-fg: #007AFF;
   --chrome-elevated: rgba(255, 255, 255, 0.55);
   --chrome-soft: rgba(255, 255, 255, 0.38);
   --pill-soft-bg: rgba(255, 255, 255, 0.7);
-  --pill-soft-border: rgba(0, 0, 0, 0.06);
+  --pill-soft-border: rgba(60, 60, 67, 0.08);
 }
 
 * {
@@ -423,28 +423,28 @@ html, body {
 }
 
 .cm-editor .cm-selectionBackground {
-  background: rgba(224, 144, 80, 0.10) !important;
+  background: rgba(10, 132, 255, 0.12) !important;
 }
 
 .cm-editor.cm-focused .cm-selectionBackground {
-  background: rgba(224, 144, 80, 0.16) !important;
+  background: rgba(10, 132, 255, 0.20) !important;
 }
 
 .cm-fat-cursor .cm-cursor {
-  background: rgba(224, 144, 80, 0.5) !important;
+  background: rgba(10, 132, 255, 0.5) !important;
   border: none !important;
 }
 
 [data-theme="light"] .cm-editor .cm-selectionBackground {
-  background: rgba(196, 101, 42, 0.08) !important;
+  background: rgba(0, 122, 255, 0.10) !important;
 }
 
 [data-theme="light"] .cm-editor.cm-focused .cm-selectionBackground {
-  background: rgba(196, 101, 42, 0.14) !important;
+  background: rgba(0, 122, 255, 0.16) !important;
 }
 
 [data-theme="light"] .cm-fat-cursor .cm-cursor {
-  background: rgba(196, 101, 42, 0.45) !important;
+  background: rgba(0, 122, 255, 0.45) !important;
 }
 
 .cm-vim-panel {
@@ -463,41 +463,41 @@ html, body {
 
 /* Markmap dark theme overrides */
 .markmap-dark .markmap {
-  --markmap-text-color: #e8e6e3;
-  --markmap-a-color: #6bafbd;
-  --markmap-a-hover-color: #82c4d0;
-  --markmap-code-bg: #2a2a2c;
-  --markmap-code-color: #e8e6e3;
+  --markmap-text-color: #f5f5f7;
+  --markmap-a-color: #0A84FF;
+  --markmap-a-hover-color: #409CFF;
+  --markmap-code-bg: #2c2c2e;
+  --markmap-code-color: #f5f5f7;
   --markmap-code-font: var(--mono-font);
-  --markmap-circle-open-bg: #2a2a2c;
-  --markmap-highlight-bg: rgba(224, 144, 80, 0.15);
-  --markmap-font: 400 14px/20px "Inter", -apple-system, system-ui, sans-serif;
+  --markmap-circle-open-bg: #2c2c2e;
+  --markmap-highlight-bg: rgba(10, 132, 255, 0.15);
+  --markmap-font: 400 14px/20px -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
 }
 
 /* Markmap dusk theme overrides */
 .markmap-dusk .markmap {
-  --markmap-text-color: #d8d2c8;
-  --markmap-a-color: #6ba8c0;
-  --markmap-a-hover-color: #82bdd0;
-  --markmap-code-bg: #343230;
-  --markmap-code-color: #d8d2c8;
+  --markmap-text-color: #e5e5ea;
+  --markmap-a-color: #0A84FF;
+  --markmap-a-hover-color: #409CFF;
+  --markmap-code-bg: #3a3a3c;
+  --markmap-code-color: #e5e5ea;
   --markmap-code-font: var(--mono-font);
-  --markmap-circle-open-bg: #343230;
-  --markmap-highlight-bg: rgba(212, 160, 84, 0.15);
-  --markmap-font: 400 14px/20px "Inter", -apple-system, system-ui, sans-serif;
+  --markmap-circle-open-bg: #3a3a3c;
+  --markmap-highlight-bg: rgba(10, 132, 255, 0.15);
+  --markmap-font: 400 14px/20px -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
 }
 
 /* Markmap light theme overrides */
 .markmap-light .markmap {
-  --markmap-text-color: #1a1a1a;
-  --markmap-a-color: #2878a8;
-  --markmap-a-hover-color: #1e6690;
-  --markmap-code-bg: #eae9e5;
-  --markmap-code-color: #1a1a1a;
+  --markmap-text-color: #1c1c1e;
+  --markmap-a-color: #007AFF;
+  --markmap-a-hover-color: #0056CC;
+  --markmap-code-bg: #f2f2f7;
+  --markmap-code-color: #1c1c1e;
   --markmap-code-font: var(--mono-font);
-  --markmap-circle-open-bg: #fdfcfa;
-  --markmap-highlight-bg: rgba(196, 101, 42, 0.10);
-  --markmap-font: 400 14px/20px "Inter", -apple-system, system-ui, sans-serif;
+  --markmap-circle-open-bg: #ffffff;
+  --markmap-highlight-bg: rgba(0, 122, 255, 0.10);
+  --markmap-font: 400 14px/20px -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
 }
 
 /* Markmap node & link styling */
@@ -511,7 +511,7 @@ html, body {
 }
 
 #mindmap-pane .markmap-node text {
-  font-family: "Inter", -apple-system, system-ui, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif !important;
   font-weight: 400;
   font-size: 14px;
   fill: var(--fg) !important;

@@ -3,41 +3,41 @@ import { Extension } from "@codemirror/state";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 
-// Warm dark palette — richer, more saturated
-const blue = "#6bafbd",
-  purple = "#c49be0",
-  cyan = "#5cb8c8",
-  green = "#8cc265",
-  orange = "#e09050",
-  yellow = "#e0b854",
-  red = "#e06868",
-  fg = "#e8e6e3",
-  comment = "#6a6a68",
-  bg = "#17171a",
-  surface = "#1a1a1c",
-  border = "rgba(255, 255, 255, 0.07)";
+// --- Dark theme — Apple HIG (Cupertino Dark) ---
+const blue = "#0A84FF",
+  purple = "#BF5AF2",
+  cyan = "#64D2FF",
+  green = "#30D158",
+  orange = "#FF9F0A",
+  yellow = "#FFD60A",
+  red = "#FF453A",
+  fg = "#f5f5f7",
+  comment = "#636366",
+  bg = "#1c1c1e",
+  surface = "#2c2c2e",
+  border = "rgba(255, 255, 255, 0.08)";
 
 const darkTheme = EditorView.theme(
   {
     "&": { color: fg, backgroundColor: bg },
-    ".cm-content": { caretColor: orange },
-    ".cm-cursor, .cm-dropCursor": { borderLeftColor: orange },
+    ".cm-content": { caretColor: blue },
+    ".cm-cursor, .cm-dropCursor": { borderLeftColor: blue },
     "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
-      { backgroundColor: "rgba(224, 144, 80, 0.16)" },
+      { backgroundColor: "rgba(10, 132, 255, 0.20)" },
     ".cm-panels": { backgroundColor: bg, color: fg },
     ".cm-panels.cm-panels-top": { borderBottom: `1px solid ${border}` },
     ".cm-panels.cm-panels-bottom": { borderTop: `1px solid ${border}` },
     ".cm-searchMatch": {
-      backgroundColor: "rgba(224, 144, 80, 0.12)",
-      outline: "1px solid rgba(224, 144, 80, 0.25)",
+      backgroundColor: "rgba(10, 132, 255, 0.15)",
+      outline: "1px solid rgba(10, 132, 255, 0.30)",
     },
     ".cm-searchMatch.cm-searchMatch-selected": {
-      backgroundColor: "rgba(224, 144, 80, 0.25)",
+      backgroundColor: "rgba(10, 132, 255, 0.30)",
     },
-    ".cm-activeLine": { backgroundColor: "rgba(224, 144, 80, 0.06)" },
-    ".cm-selectionMatch": { backgroundColor: "rgba(224, 144, 80, 0.08)" },
+    ".cm-activeLine": { backgroundColor: "rgba(10, 132, 255, 0.06)" },
+    ".cm-selectionMatch": { backgroundColor: "rgba(10, 132, 255, 0.10)" },
     "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {
-      backgroundColor: "rgba(224, 144, 80, 0.18)",
+      backgroundColor: "rgba(10, 132, 255, 0.22)",
     },
     ".cm-gutters": {
       backgroundColor: bg,
@@ -60,7 +60,7 @@ const darkTheme = EditorView.theme(
       borderBottomColor: surface,
     },
     ".cm-tooltip-autocomplete": {
-      "& > ul > li[aria-selected]": { backgroundColor: "rgba(224, 144, 80, 0.12)" },
+      "& > ul > li[aria-selected]": { backgroundColor: "rgba(10, 132, 255, 0.15)" },
     },
   },
   { dark: true }
@@ -79,7 +79,7 @@ const darkHighlightStyle = HighlightStyle.define([
   { tag: t.emphasis, fontStyle: "italic" },
   { tag: t.strikethrough, textDecoration: "line-through" },
   { tag: t.link, color: cyan, textDecoration: "underline" },
-  { tag: t.heading, fontWeight: "bold", color: yellow },
+  { tag: t.heading, fontWeight: "bold", color: "#f5f5f7" },
   { tag: [t.atom, t.bool, t.special(t.variableName)], color: orange },
   { tag: [t.processingInstruction, t.string, t.inserted], color: green },
   { tag: t.invalid, color: red },
@@ -87,41 +87,41 @@ const darkHighlightStyle = HighlightStyle.define([
 
 export const oneDark: Extension = [darkTheme, syntaxHighlighting(darkHighlightStyle)];
 
-// --- Light theme (warm paper, richer tones) ---
-const lBlue = "#2878a8",
-  lPurple = "#7847bd",
-  lCyan = "#1a7a8a",
-  lGreen = "#4a8030",
-  lOrange = "#c4652a",
-  lYellow = "#9a7028",
-  lRed = "#c4453a",
-  lFg = "#1a1a1a",
-  lComment = "#a0a09e",
-  lBg = "#fdfcfa",
-  lSurface = "#f5f4f1",
-  lBorder = "rgba(0, 0, 0, 0.07)";
+// --- Light theme — Apple HIG (Cupertino Light) ---
+const lBlue = "#007AFF",
+  lPurple = "#AF52DE",
+  lCyan = "#5AC8FA",
+  lGreen = "#34C759",
+  lOrange = "#FF9500",
+  lYellow = "#FF9500",
+  lRed = "#FF3B30",
+  lFg = "#1c1c1e",
+  lComment = "#8e8e93",
+  lBg = "#ffffff",
+  lSurface = "#f2f2f7",
+  lBorder = "rgba(60, 60, 67, 0.12)";
 
 const lightTheme = EditorView.theme(
   {
     "&": { color: lFg, backgroundColor: lBg },
-    ".cm-content": { caretColor: lOrange },
-    ".cm-cursor, .cm-dropCursor": { borderLeftColor: lOrange },
+    ".cm-content": { caretColor: lBlue },
+    ".cm-cursor, .cm-dropCursor": { borderLeftColor: lBlue },
     "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
-      { backgroundColor: "rgba(196, 101, 42, 0.14)" },
+      { backgroundColor: "rgba(0, 122, 255, 0.16)" },
     ".cm-panels": { backgroundColor: lBg, color: lFg },
     ".cm-panels.cm-panels-top": { borderBottom: `1px solid ${lBorder}` },
     ".cm-panels.cm-panels-bottom": { borderTop: `1px solid ${lBorder}` },
     ".cm-searchMatch": {
-      backgroundColor: "rgba(196, 101, 42, 0.10)",
-      outline: "1px solid rgba(196, 101, 42, 0.25)",
+      backgroundColor: "rgba(0, 122, 255, 0.12)",
+      outline: "1px solid rgba(0, 122, 255, 0.30)",
     },
     ".cm-searchMatch.cm-searchMatch-selected": {
-      backgroundColor: "rgba(196, 101, 42, 0.20)",
+      backgroundColor: "rgba(0, 122, 255, 0.25)",
     },
-    ".cm-activeLine": { backgroundColor: "rgba(196, 101, 42, 0.05)" },
-    ".cm-selectionMatch": { backgroundColor: "rgba(196, 101, 42, 0.08)" },
+    ".cm-activeLine": { backgroundColor: "rgba(0, 122, 255, 0.05)" },
+    ".cm-selectionMatch": { backgroundColor: "rgba(0, 122, 255, 0.08)" },
     "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {
-      backgroundColor: "rgba(196, 101, 42, 0.15)",
+      backgroundColor: "rgba(0, 122, 255, 0.18)",
     },
     ".cm-gutters": {
       backgroundColor: lBg,
@@ -144,7 +144,7 @@ const lightTheme = EditorView.theme(
       borderBottomColor: lSurface,
     },
     ".cm-tooltip-autocomplete": {
-      "& > ul > li[aria-selected]": { backgroundColor: "rgba(196, 101, 42, 0.10)" },
+      "& > ul > li[aria-selected]": { backgroundColor: "rgba(0, 122, 255, 0.12)" },
     },
   },
   { dark: false }
@@ -162,8 +162,8 @@ const lightHighlightStyle = HighlightStyle.define([
   { tag: t.strong, fontWeight: "bold" },
   { tag: t.emphasis, fontStyle: "italic" },
   { tag: t.strikethrough, textDecoration: "line-through" },
-  { tag: t.link, color: lCyan, textDecoration: "underline" },
-  { tag: t.heading, fontWeight: "bold", color: lYellow },
+  { tag: t.link, color: lBlue, textDecoration: "underline" },
+  { tag: t.heading, fontWeight: "bold", color: lFg },
   { tag: [t.atom, t.bool, t.special(t.variableName)], color: lOrange },
   { tag: [t.processingInstruction, t.string, t.inserted], color: lGreen },
   { tag: t.invalid, color: lRed },
@@ -171,41 +171,41 @@ const lightHighlightStyle = HighlightStyle.define([
 
 export const oneLight: Extension = [lightTheme, syntaxHighlighting(lightHighlightStyle)];
 
-// --- Dusk theme (warm mid-tone, golden hour) ---
-const dBlue = "#6ba8c0",
-  dPurple = "#b890d0",
-  dCyan = "#5aada8",
-  dGreen = "#8ab860",
-  dOrange = "#d4a054",
-  dYellow = "#c8b050",
-  dRed = "#d07060",
-  dFg = "#d8d2c8",
-  dComment = "#706860",
-  dBg = "#252320",
-  dSurface = "#2d2b28",
-  dBorder = "rgba(255, 240, 220, 0.08)";
+// --- Dusk theme — Apple HIG (Cupertino Dusk) ---
+const dBlue = "#0A84FF",
+  dPurple = "#BF5AF2",
+  dCyan = "#64D2FF",
+  dGreen = "#30D158",
+  dOrange = "#FF9F0A",
+  dYellow = "#FFD60A",
+  dRed = "#FF453A",
+  dFg = "#e5e5ea",
+  dComment = "#636366",
+  dBg = "#2c2c2e",
+  dSurface = "#3a3a3c",
+  dBorder = "rgba(255, 255, 255, 0.08)";
 
 const duskTheme = EditorView.theme(
   {
     "&": { color: dFg, backgroundColor: dBg },
-    ".cm-content": { caretColor: dOrange },
-    ".cm-cursor, .cm-dropCursor": { borderLeftColor: dOrange },
+    ".cm-content": { caretColor: dBlue },
+    ".cm-cursor, .cm-dropCursor": { borderLeftColor: dBlue },
     "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
-      { backgroundColor: "rgba(212, 160, 84, 0.16)" },
+      { backgroundColor: "rgba(10, 132, 255, 0.20)" },
     ".cm-panels": { backgroundColor: dBg, color: dFg },
     ".cm-panels.cm-panels-top": { borderBottom: `1px solid ${dBorder}` },
     ".cm-panels.cm-panels-bottom": { borderTop: `1px solid ${dBorder}` },
     ".cm-searchMatch": {
-      backgroundColor: "rgba(212, 160, 84, 0.12)",
-      outline: "1px solid rgba(212, 160, 84, 0.25)",
+      backgroundColor: "rgba(10, 132, 255, 0.15)",
+      outline: "1px solid rgba(10, 132, 255, 0.30)",
     },
     ".cm-searchMatch.cm-searchMatch-selected": {
-      backgroundColor: "rgba(212, 160, 84, 0.25)",
+      backgroundColor: "rgba(10, 132, 255, 0.30)",
     },
-    ".cm-activeLine": { backgroundColor: "rgba(212, 160, 84, 0.06)" },
-    ".cm-selectionMatch": { backgroundColor: "rgba(212, 160, 84, 0.08)" },
+    ".cm-activeLine": { backgroundColor: "rgba(10, 132, 255, 0.06)" },
+    ".cm-selectionMatch": { backgroundColor: "rgba(10, 132, 255, 0.10)" },
     "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {
-      backgroundColor: "rgba(212, 160, 84, 0.18)",
+      backgroundColor: "rgba(10, 132, 255, 0.22)",
     },
     ".cm-gutters": {
       backgroundColor: dBg,
@@ -228,7 +228,7 @@ const duskTheme = EditorView.theme(
       borderBottomColor: dSurface,
     },
     ".cm-tooltip-autocomplete": {
-      "& > ul > li[aria-selected]": { backgroundColor: "rgba(212, 160, 84, 0.12)" },
+      "& > ul > li[aria-selected]": { backgroundColor: "rgba(10, 132, 255, 0.15)" },
     },
   },
   { dark: true }
@@ -247,7 +247,7 @@ const duskHighlightStyle = HighlightStyle.define([
   { tag: t.emphasis, fontStyle: "italic" },
   { tag: t.strikethrough, textDecoration: "line-through" },
   { tag: t.link, color: dCyan, textDecoration: "underline" },
-  { tag: t.heading, fontWeight: "bold", color: dYellow },
+  { tag: t.heading, fontWeight: "bold", color: "#e5e5ea" },
   { tag: [t.atom, t.bool, t.special(t.variableName)], color: dOrange },
   { tag: [t.processingInstruction, t.string, t.inserted], color: dGreen },
   { tag: t.invalid, color: dRed },
@@ -255,25 +255,38 @@ const duskHighlightStyle = HighlightStyle.define([
 
 export const oneDusk: Extension = [duskTheme, syntaxHighlighting(duskHighlightStyle)];
 
-export const DUSK_BRANCH_COLORS = [
-  "#d4a054", // golden amber
-  "#8ab860", // sage green
-  "#6ba8c0", // dusty blue
-  "#b890d0", // lavender
-  "#5aada8", // muted teal
-  "#d07060", // terracotta
-  "#c8b050", // warm gold
-  "#b06890", // rose
+// Apple system colors — dark mode variants
+export const DARK_BRANCH_COLORS = [
+  "#0A84FF", // systemBlue
+  "#30D158", // systemGreen
+  "#5E5CE6", // systemIndigo
+  "#FF9F0A", // systemOrange
+  "#FF375F", // systemPink
+  "#BF5AF2", // systemPurple
+  "#64D2FF", // systemTeal
+  "#FFD60A", // systemYellow
 ];
 
-// Light branch colors (saturated, distinct)
+// Apple system colors — dusk (same as dark, slightly muted)
+export const DUSK_BRANCH_COLORS = [
+  "#0A84FF", // systemBlue
+  "#30D158", // systemGreen
+  "#5E5CE6", // systemIndigo
+  "#FF9F0A", // systemOrange
+  "#FF375F", // systemPink
+  "#BF5AF2", // systemPurple
+  "#64D2FF", // systemTeal
+  "#FFD60A", // systemYellow
+];
+
+// Apple system colors — light mode variants
 export const LIGHT_BRANCH_COLORS = [
-  "#c4652a", // burnt sienna
-  "#4a8030", // forest green
-  "#2878a8", // ocean blue
-  "#7847bd", // purple
-  "#1a7a8a", // teal
-  "#c4453a", // warm red
-  "#9a7028", // gold
-  "#b05098", // magenta
+  "#007AFF", // systemBlue
+  "#34C759", // systemGreen
+  "#5856D6", // systemIndigo
+  "#FF9500", // systemOrange
+  "#FF2D55", // systemPink
+  "#AF52DE", // systemPurple
+  "#5AC8FA", // systemTeal
+  "#FFCC00", // systemYellow
 ];

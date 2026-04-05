@@ -6,7 +6,7 @@ describe("getThemeById", () => {
     const theme = getThemeById("wd40-dusk");
     expect(theme).toBeDefined();
     expect(theme!.id).toBe("wd40-dusk");
-    expect(theme!.label).toBe("wd40 Dusk");
+    expect(theme!.label).toBe("Dusk");
     expect(theme!.isDark).toBe(true);
   });
 

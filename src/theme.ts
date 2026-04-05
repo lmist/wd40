@@ -15,7 +15,7 @@ const blue = "#0A84FF",
   comment = "#636366",
   bg = "#1c1c1e",
   surface = "#2c2c2e",
-  border = "rgba(255, 255, 255, 0.08)";
+  border = "rgba(84, 84, 88, 0.65)";
 
 const darkTheme = EditorView.theme(
   {
@@ -99,7 +99,7 @@ const lBlue = "#007AFF",
   lComment = "#8e8e93",
   lBg = "#ffffff",
   lSurface = "#f2f2f7",
-  lBorder = "rgba(60, 60, 67, 0.12)";
+  lBorder = "rgba(60, 60, 67, 0.29)";
 
 const lightTheme = EditorView.theme(
   {
@@ -183,7 +183,7 @@ const dBlue = "#0A84FF",
   dComment = "#636366",
   dBg = "#2c2c2e",
   dSurface = "#3a3a3c",
-  dBorder = "rgba(255, 255, 255, 0.08)";
+  dBorder = "rgba(84, 84, 88, 0.65)";
 
 const duskTheme = EditorView.theme(
   {

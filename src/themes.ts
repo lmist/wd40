@@ -13,6 +13,7 @@ export interface ChromeColors {
   accentHover: string;
   accentSecondary: string;
   border: string;
+  borderSubtle: string;
   statusbarBg: string;
   toolbarBg: string;
   toolbarBorder: string;
@@ -52,7 +53,8 @@ export const THEMES: ThemeEntry[] = [
       accentDim: "rgba(10, 132, 255, 0.10)",
       accentHover: "rgba(10, 132, 255, 0.18)",
       accentSecondary: "#64D2FF",
-      border: "rgba(255, 255, 255, 0.08)",
+      border: "rgba(84, 84, 88, 0.65)",
+      borderSubtle: "rgba(255, 255, 255, 0.08)",
       statusbarBg: "#1c1c1e",
       toolbarBg: "rgba(44, 44, 46, 0.88)",
       toolbarBorder: "rgba(255, 255, 255, 0.08)",
@@ -83,7 +85,8 @@ export const THEMES: ThemeEntry[] = [
       accentDim: "rgba(0, 122, 255, 0.08)",
       accentHover: "rgba(0, 122, 255, 0.14)",
       accentSecondary: "#5AC8FA",
-      border: "rgba(60, 60, 67, 0.12)",
+      border: "rgba(60, 60, 67, 0.29)",
+      borderSubtle: "rgba(60, 60, 67, 0.12)",
       statusbarBg: "#f2f2f7",
       toolbarBg: "rgba(255, 255, 255, 0.92)",
       toolbarBorder: "rgba(60, 60, 67, 0.10)",
@@ -114,7 +117,8 @@ export const THEMES: ThemeEntry[] = [
       accentDim: "rgba(10, 132, 255, 0.10)",
       accentHover: "rgba(10, 132, 255, 0.18)",
       accentSecondary: "#64D2FF",
-      border: "rgba(255, 255, 255, 0.08)",
+      border: "rgba(84, 84, 88, 0.65)",
+      borderSubtle: "rgba(255, 255, 255, 0.08)",
       statusbarBg: "#2c2c2e",
       toolbarBg: "rgba(58, 58, 60, 0.90)",
       toolbarBorder: "rgba(255, 255, 255, 0.08)",
@@ -148,6 +152,7 @@ export function applyChromeColors(chrome: ChromeColors): void {
   s.setProperty("--accent-hover", chrome.accentHover);
   s.setProperty("--accent-secondary", chrome.accentSecondary);
   s.setProperty("--border", chrome.border);
+  s.setProperty("--border-subtle", chrome.borderSubtle);
   s.setProperty("--statusbar-bg", chrome.statusbarBg);
   s.setProperty("--toolbar-bg", chrome.toolbarBg);
   s.setProperty("--toolbar-border", chrome.toolbarBorder);

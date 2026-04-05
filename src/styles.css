@@ -438,6 +438,19 @@ html, body {
   --markmap-font: 400 14px/20px "Inter", -apple-system, system-ui, sans-serif;
 }
 
+/* Markmap dusk theme overrides */
+.markmap-dusk .markmap {
+  --markmap-text-color: #d8d2c8;
+  --markmap-a-color: #6ba8c0;
+  --markmap-a-hover-color: #82bdd0;
+  --markmap-code-bg: #343230;
+  --markmap-code-color: #d8d2c8;
+  --markmap-code-font: var(--mono-font);
+  --markmap-circle-open-bg: #343230;
+  --markmap-highlight-bg: rgba(212, 160, 84, 0.15);
+  --markmap-font: 400 14px/20px "Inter", -apple-system, system-ui, sans-serif;
+}
+
 /* Markmap light theme overrides */
 .markmap-light .markmap {
   --markmap-text-color: #1a1a1a;

@@ -171,6 +171,101 @@ const lightHighlightStyle = HighlightStyle.define([
 
 export const oneLight: Extension = [lightTheme, syntaxHighlighting(lightHighlightStyle)];
 
+// --- Dusk theme (warm mid-tone, golden hour) ---
+const dBlue = "#6ba8c0",
+  dPurple = "#b890d0",
+  dCyan = "#5aada8",
+  dGreen = "#8ab860",
+  dOrange = "#d4a054",
+  dYellow = "#c8b050",
+  dRed = "#d07060",
+  dFg = "#d8d2c8",
+  dComment = "#706860",
+  dBg = "#252320",
+  dSurface = "#2d2b28",
+  dBorder = "rgba(255, 240, 220, 0.08)";
+
+const duskTheme = EditorView.theme(
+  {
+    "&": { color: dFg, backgroundColor: dBg },
+    ".cm-content": { caretColor: dOrange },
+    ".cm-cursor, .cm-dropCursor": { borderLeftColor: dOrange },
+    "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
+      { backgroundColor: "rgba(212, 160, 84, 0.16)" },
+    ".cm-panels": { backgroundColor: dBg, color: dFg },
+    ".cm-panels.cm-panels-top": { borderBottom: `1px solid ${dBorder}` },
+    ".cm-panels.cm-panels-bottom": { borderTop: `1px solid ${dBorder}` },
+    ".cm-searchMatch": {
+      backgroundColor: "rgba(212, 160, 84, 0.12)",
+      outline: "1px solid rgba(212, 160, 84, 0.25)",
+    },
+    ".cm-searchMatch.cm-searchMatch-selected": {
+      backgroundColor: "rgba(212, 160, 84, 0.25)",
+    },
+    ".cm-activeLine": { backgroundColor: "rgba(212, 160, 84, 0.06)" },
+    ".cm-selectionMatch": { backgroundColor: "rgba(212, 160, 84, 0.08)" },
+    "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {
+      backgroundColor: "rgba(212, 160, 84, 0.18)",
+    },
+    ".cm-gutters": {
+      backgroundColor: dBg,
+      color: dComment,
+      border: "none",
+    },
+    ".cm-activeLineGutter": { backgroundColor: "transparent" },
+    ".cm-foldPlaceholder": {
+      backgroundColor: "transparent",
+      border: "none",
+      color: dComment,
+    },
+    ".cm-tooltip": {
+      border: `1px solid ${dBorder}`,
+      backgroundColor: dSurface,
+    },
+    ".cm-tooltip .cm-tooltip-arrow:before": { borderTopColor: "transparent", borderBottomColor: "transparent" },
+    ".cm-tooltip .cm-tooltip-arrow:after": {
+      borderTopColor: dSurface,
+      borderBottomColor: dSurface,
+    },
+    ".cm-tooltip-autocomplete": {
+      "& > ul > li[aria-selected]": { backgroundColor: "rgba(212, 160, 84, 0.12)" },
+    },
+  },
+  { dark: true }
+);
+
+const duskHighlightStyle = HighlightStyle.define([
+  { tag: t.keyword, color: dPurple },
+  { tag: [t.name, t.deleted, t.character, t.propertyName, t.macroName], color: dRed },
+  { tag: [t.function(t.variableName), t.labelName], color: dBlue },
+  { tag: [t.color, t.constant(t.name), t.standard(t.name)], color: dOrange },
+  { tag: [t.definition(t.name), t.separator], color: dFg },
+  { tag: [t.typeName, t.className, t.number, t.changed, t.annotation, t.modifier, t.self, t.namespace], color: dYellow },
+  { tag: [t.operator, t.operatorKeyword, t.url, t.escape, t.regexp, t.link, t.special(t.string)], color: dCyan },
+  { tag: [t.meta, t.comment], color: dComment },
+  { tag: t.strong, fontWeight: "bold" },
+  { tag: t.emphasis, fontStyle: "italic" },
+  { tag: t.strikethrough, textDecoration: "line-through" },
+  { tag: t.link, color: dCyan, textDecoration: "underline" },
+  { tag: t.heading, fontWeight: "bold", color: dYellow },
+  { tag: [t.atom, t.bool, t.special(t.variableName)], color: dOrange },
+  { tag: [t.processingInstruction, t.string, t.inserted], color: dGreen },
+  { tag: t.invalid, color: dRed },
+]);
+
+export const oneDusk: Extension = [duskTheme, syntaxHighlighting(duskHighlightStyle)];
+
+export const DUSK_BRANCH_COLORS = [
+  "#d4a054", // golden amber
+  "#8ab860", // sage green
+  "#6ba8c0", // dusty blue
+  "#b890d0", // lavender
+  "#5aada8", // muted teal
+  "#d07060", // terracotta
+  "#c8b050", // warm gold
+  "#b06890", // rose
+];
+
 // Light branch colors (saturated, distinct)
 export const LIGHT_BRANCH_COLORS = [
   "#c4652a", // burnt sienna

@@ -139,7 +139,7 @@ function getInitialThemeEntry(): ThemeEntry {
   }
   // Fall back to system preference
   const preferLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-  return preferLight ? THEMES[1] : THEMES[0]; // Tokyo Night Day / Tokyo Night
+  return preferLight ? THEMES[1] : THEMES[0]; // wd40 Light / wd40 Dark
 }
 
 let currentThemeEntry = getInitialThemeEntry();
@@ -162,8 +162,10 @@ function getMarkmapOpts() {
 }
 
 function applyMarkmapTheme() {
-  svgEl.classList.remove("markmap-dark", "markmap-light");
-  svgEl.classList.add(currentThemeEntry.isDark ? "markmap-dark" : "markmap-light");
+  svgEl.classList.remove("markmap-dark", "markmap-light", "markmap-dusk");
+  const cls = currentThemeEntry.id === "wd40-dusk" ? "markmap-dusk"
+    : currentThemeEntry.isDark ? "markmap-dark" : "markmap-light";
+  svgEl.classList.add(cls);
 }
 
 async function updateMarkmap(md: string) {
@@ -632,8 +634,6 @@ function setThemeById(id: string) {
   document.documentElement.setAttribute("data-theme", entry.isDark ? "dark" : "light");
   applyChromeColors(entry.chrome);
 
-  // Remember last dark/light choice for the toggle button
-  localStorage.setItem(entry.isDark ? "last-dark-theme" : "last-light-theme", id);
 
   // Fade editor during theme swap
   editorPane.style.transition = "opacity 0.15s ease";
@@ -662,46 +662,23 @@ function setThemeById(id: string) {
   if (picker.value !== id) picker.value = id;
 }
 
-// Toggle button: quick dark/light swap
+// Toggle button: cycle through all 3 themes
 document.getElementById("btn-theme")!.addEventListener("click", () => {
-  if (currentThemeEntry.isDark) {
-    const lightId = localStorage.getItem("last-light-theme") || "wd40-light";
-    setThemeById(lightId);
-  } else {
-    const darkId = localStorage.getItem("last-dark-theme") || "wd40-dark";
-    setThemeById(darkId);
-  }
-});
-
-// Respect system preference changes
-window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", (e) => {
-  if (!localStorage.getItem("theme-id")) {
-    setThemeById(e.matches ? "wd40-light" : "wd40-dark");
-  }
+  const idx = THEMES.findIndex((t) => t.id === currentThemeEntry.id);
+  const next = THEMES[(idx + 1) % THEMES.length];
+  setThemeById(next.id);
 });
 
 // --- Theme picker ---
 const themePicker = document.getElementById("theme-picker") as HTMLSelectElement;
 
-// Group themes by dark/light
-const darkThemes = THEMES.filter((t) => t.isDark);
-const lightThemes = THEMES.filter((t) => !t.isDark);
-
-function addThemeGroup(label: string, themes: ThemeEntry[]) {
-  const group = document.createElement("optgroup");
-  group.label = label;
-  for (const t of themes) {
-    const opt = document.createElement("option");
-    opt.value = t.id;
-    opt.textContent = t.label;
-    if (t.id === currentThemeEntry.id) opt.selected = true;
-    group.appendChild(opt);
-  }
-  themePicker.appendChild(group);
+for (const t of THEMES) {
+  const opt = document.createElement("option");
+  opt.value = t.id;
+  opt.textContent = t.label;
+  if (t.id === currentThemeEntry.id) opt.selected = true;
+  themePicker.appendChild(opt);
 }
-
-addThemeGroup("Dark", darkThemes);
-addThemeGroup("Light", lightThemes);
 
 themePicker.addEventListener("change", () => {
   setThemeById(themePicker.value);

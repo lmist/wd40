@@ -476,6 +476,50 @@ vimrcOverlay.addEventListener("keydown", (e) => {
 // Apply saved vimrc on startup
 applyVimrc();
 
+// --- Keyboard shortcuts modal ---
+const shortcutsOverlay = document.getElementById("shortcuts-overlay")!;
+const shortcutsCloseBtn = document.getElementById("shortcuts-close")!;
+
+function openShortcuts() {
+  shortcutsOverlay.classList.remove("hidden");
+}
+
+function closeShortcuts() {
+  shortcutsOverlay.classList.add("hidden");
+  editor.focus();
+}
+
+shortcutsCloseBtn.addEventListener("click", closeShortcuts);
+shortcutsOverlay.addEventListener("click", (e) => {
+  if (e.target === shortcutsOverlay) closeShortcuts();
+});
+
+shortcutsOverlay.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" || e.key === "?") {
+    e.stopPropagation();
+    e.preventDefault();
+    closeShortcuts();
+  }
+});
+
+// Shift+? to open shortcuts (only when not typing in an input)
+document.addEventListener("keydown", (e) => {
+  if (e.key === "?" && !e.metaKey && !e.ctrlKey && !e.altKey) {
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+    // Don't trigger in insert mode
+    if (currentVimMode === "insert") return;
+    // Don't trigger if vimrc modal is open
+    if (!vimrcOverlay.classList.contains("hidden")) return;
+    e.preventDefault();
+    if (!shortcutsOverlay.classList.contains("hidden")) {
+      closeShortcuts();
+    } else {
+      openShortcuts();
+    }
+  }
+});
+
 // --- Initial render ---
 updateMarkmap(INITIAL_MD);
 

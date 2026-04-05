@@ -555,6 +555,180 @@ html, body {
   border-color: rgba(0, 0, 0, 0.14);
 }
 
+/* Keyboard shortcuts modal */
+.shortcuts-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.15s ease;
+}
+
+.shortcuts-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.shortcuts-overlay .shortcuts-modal {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  transform: scale(1) translateY(0);
+}
+
+.shortcuts-overlay.hidden .shortcuts-modal {
+  transform: scale(0.97) translateY(4px);
+  opacity: 0;
+}
+
+.shortcuts-modal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+}
+
+.shortcuts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.shortcuts-title {
+  font-family: var(--ui-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.shortcuts-close {
+  background: none;
+  border: none;
+  color: var(--fg-dim);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.shortcuts-close:hover {
+  color: var(--fg);
+  background: var(--accent-dim);
+}
+
+.shortcuts-body {
+  display: flex;
+  gap: 32px;
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+.shortcuts-column {
+  flex: 1;
+  min-width: 0;
+}
+
+.shortcuts-section {
+  font-family: var(--ui-font);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.shortcuts-section:not(:first-child) {
+  margin-top: 20px;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 0;
+  gap: 12px;
+}
+
+.shortcut-label {
+  font-family: var(--ui-font);
+  font-size: 12.5px;
+  color: var(--fg-secondary);
+}
+
+.shortcut-keys {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--ui-font);
+  font-size: 11px;
+  color: var(--fg-dim);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.shortcut-keys kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-family: var(--mono-font);
+  font-size: 11px;
+  color: var(--fg-secondary);
+  line-height: 1;
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.shortcuts-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.shortcuts-hint {
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+
+.shortcuts-hint kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: var(--mono-font);
+  font-size: 10px;
+  color: var(--fg-secondary);
+  line-height: 1;
+  margin: 0 2px;
+}
+
 /* .vimrc modal */
 .vimrc-overlay {
   position: fixed;

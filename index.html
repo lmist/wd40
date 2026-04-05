@@ -68,6 +68,45 @@
       </button>
     </div>
 
+    <!-- Keyboard shortcuts modal -->
+    <div id="shortcuts-overlay" class="shortcuts-overlay hidden">
+      <div class="shortcuts-modal">
+        <div class="shortcuts-header">
+          <span class="shortcuts-title">Keyboard shortcuts</span>
+          <button id="shortcuts-close" class="shortcuts-close">&times;</button>
+        </div>
+        <div class="shortcuts-body">
+          <div class="shortcuts-column">
+            <h3 class="shortcuts-section">Navigation</h3>
+            <div class="shortcut-row"><span class="shortcut-label">Toggle focus pane</span><span class="shortcut-keys"><kbd>`</kbd> <kbd>z</kbd></span></div>
+            <div class="shortcut-row"><span class="shortcut-label">Balance panes 50/50</span><span class="shortcut-keys"><kbd>`</kbd> <kbd>b</kbd></span></div>
+            <div class="shortcut-row"><span class="shortcut-label">New tab</span><span class="shortcut-keys"><kbd>`</kbd> <kbd>c</kbd></span></div>
+            <div class="shortcut-row"><span class="shortcut-label">Fit mindmap</span><span class="shortcut-keys"><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>F</kbd></span></div>
+
+            <h3 class="shortcuts-section">Resize</h3>
+            <div class="shortcut-row"><span class="shortcut-label">Shrink editor</span><span class="shortcut-keys"><kbd>`</kbd> <kbd>h</kbd></span></div>
+            <div class="shortcut-row"><span class="shortcut-label">Expand editor</span><span class="shortcut-keys"><kbd>`</kbd> <kbd>l</kbd></span></div>
+            <div class="shortcut-row"><span class="shortcut-label">Keep resizing</span><span class="shortcut-keys"><kbd>h</kbd> / <kbd>l</kbd></span></div>
+            <div class="shortcut-row"><span class="shortcut-label">Exit resize</span><span class="shortcut-keys"><kbd>Esc</kbd></span></div>
+          </div>
+          <div class="shortcuts-column">
+            <h3 class="shortcuts-section">Editing (defaults)</h3>
+            <div class="shortcut-row"><span class="shortcut-label">Exit insert mode</span><span class="shortcut-keys"><kbd>q</kbd> <kbd>w</kbd></span></div>
+            <div class="shortcut-row"><span class="shortcut-label">Command mode</span><span class="shortcut-keys"><kbd>;</kbd></span></div>
+            <div class="shortcut-row"><span class="shortcut-label">End of line</span><span class="shortcut-keys"><kbd>1</kbd></span></div>
+            <div class="shortcut-row"><span class="shortcut-label">Undo / Redo</span><span class="shortcut-keys"><kbd>u</kbd> / <kbd>Ctrl</kbd> <kbd>r</kbd></span></div>
+
+            <h3 class="shortcuts-section">General</h3>
+            <div class="shortcut-row"><span class="shortcut-label">Keyboard shortcuts</span><span class="shortcut-keys"><kbd>Shift</kbd> <kbd>?</kbd></span></div>
+            <div class="shortcut-row"><span class="shortcut-label">Edit keyboard rules</span><span class="shortcut-keys">statusbar button</span></div>
+          </div>
+        </div>
+        <div class="shortcuts-footer">
+          <span class="shortcuts-hint">Press <kbd>?</kbd> to dismiss</span>
+        </div>
+      </div>
+    </div>
+
     <!-- .vimrc settings modal -->
     <div id="vimrc-overlay" class="vimrc-overlay hidden">
       <div class="vimrc-modal">

@@ -1,5 +1,0 @@
-{
-  "last_turn_at": "2026-04-05T17:05:30.568Z",
-  "turn_count": 1,
-  "last_agent_output": "Implemented the indentation-based bullet markers and exit-line animation in [src/heading-markers.ts]"
-}

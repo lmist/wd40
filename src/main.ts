@@ -11,6 +11,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { initFonts, setFont, getSavedFont, getFontNames } from "./fonts";
 import { EDITOR_STYLES, applyEditorStyleTokens, getEditorStyleById, EditorStyleEntry } from "./editor-styles";
+import { headingMarkers } from "./heading-markers";
 import { rememberPreviousMap, swapToPreviousMap } from "./map-history";
 import { THEMES, getThemeById, applyChromeColors, ThemeEntry } from "./themes";
 import { indentedTextToMarkdown, markdownToIndentedText } from "./transform";
@@ -195,6 +196,7 @@ const editor = new EditorView({
       history(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       appearanceCompartment.of(currentEditorAppearance()),
+      headingMarkers,
       highlightSelectionMatches(),
       outlinerKeymap,
       keymap.of([

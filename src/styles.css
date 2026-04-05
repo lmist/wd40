@@ -520,6 +520,87 @@ html, body {
   font-weight: 500;
 }
 
+/* Indentation bullets */
+.cm-heading-marker {
+  position: relative;
+  display: inline-block;
+  vertical-align: baseline;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.cm-heading-marker-spacer {
+  visibility: hidden;
+  white-space: pre;
+}
+
+.cm-heading-marker-glyph {
+  position: absolute;
+  inset-inline-end: 0;
+  top: 50%;
+  border-radius: 999px;
+  box-sizing: border-box;
+  transform: translate(0, -50%) scale(1);
+  transform-origin: center;
+}
+
+.cm-heading-marker-enter .cm-heading-marker-glyph {
+  animation: heading-marker-enter 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cm-heading-marker-2 .cm-heading-marker-glyph {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.cm-heading-marker-3 .cm-heading-marker-glyph {
+  width: 7px;
+  height: 7px;
+  background: color-mix(in srgb, var(--accent) 80%, var(--bg-editor));
+}
+
+.cm-heading-marker-4 .cm-heading-marker-glyph {
+  width: 6px;
+  height: 6px;
+  border: 1.5px solid color-mix(in srgb, var(--accent) 56%, var(--accent-secondary));
+  background: transparent;
+}
+
+.cm-heading-marker-5 .cm-heading-marker-glyph {
+  width: 5px;
+  height: 5px;
+  background: var(--fg-secondary);
+  opacity: 0.72;
+}
+
+.cm-heading-marker-6 .cm-heading-marker-glyph {
+  width: 4px;
+  height: 4px;
+  background: var(--fg-dim);
+  opacity: 0.58;
+}
+
+@keyframes heading-marker-enter {
+  from {
+    opacity: 0;
+    transform: translate(-2px, -50%) scale(0.82);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(0, -50%) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-heading-marker-enter .cm-heading-marker-glyph {
+    animation: none;
+  }
+}
+
 /* CodeMirror */
 .cm-editor {
   height: 100%;

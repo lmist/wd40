@@ -533,10 +533,24 @@ html, body {
   justify-content: center;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.15s ease;
 }
 
 .vimrc-overlay.hidden {
-  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vimrc-overlay .vimrc-modal {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  transform: scale(1) translateY(0);
+}
+
+.vimrc-overlay.hidden .vimrc-modal {
+  transform: scale(0.97) translateY(4px);
+  opacity: 0;
 }
 
 .vimrc-modal {

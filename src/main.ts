@@ -178,9 +178,11 @@ async function updateMarkmap(md: string) {
   if (!mm) {
     mm = Markmap.create(svgEl, opts, root);
     applyMarkmapTheme();
+    (mm as any).options.duration = 300;
     setTimeout(() => mm.fit(), 100);
   } else {
     mm.setData(root, opts);
+    (mm as any).options.duration = 300;
     setTimeout(() => mm.fit(), 50);
   }
 }
@@ -194,7 +196,7 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number): T {
   }) as unknown as T;
 }
 
-const debouncedUpdate = debounce((md: string) => updateMarkmap(md), 50);
+const debouncedUpdate = debounce((md: string) => updateMarkmap(md), 150);
 
 // --- Vim mode indicator ---
 const vimModeEl = document.getElementById("vim-mode")!;
@@ -269,14 +271,25 @@ function switchTab(id: string) {
   // Load target
   const target = tabs.find(t => t.id === id);
   if (!target) return;
-  activeTabId = id;
-  editor.dispatch({
-    changes: { from: 0, to: editor.state.doc.length, insert: target.content },
+  // Cross-fade
+  editorPane.style.transition = "opacity 0.1s ease";
+  editorPane.style.opacity = "0.5";
+  requestAnimationFrame(() => {
+    activeTabId = id;
+    editor.dispatch({
+      changes: { from: 0, to: editor.state.doc.length, insert: target.content },
+    });
+    updateMarkmap(target.content);
+    fileNameEl.textContent = target.name;
+    renderTabBar();
+    requestAnimationFrame(() => {
+      editorPane.style.opacity = "1";
+      editorPane.addEventListener("transitionend", () => {
+        editorPane.style.transition = "";
+      }, { once: true });
+    });
+    editor.focus();
   });
-  updateMarkmap(target.content);
-  fileNameEl.textContent = target.name;
-  renderTabBar();
-  editor.focus();
 }
 
 function createNewTab() {
@@ -622,15 +635,27 @@ function setThemeById(id: string) {
   // Remember last dark/light choice for the toggle button
   localStorage.setItem(entry.isDark ? "last-dark-theme" : "last-light-theme", id);
 
-  // Swap CodeMirror theme
-  editor.dispatch({
-    effects: themeCompartment.reconfigure(entry.extension),
-  });
+  // Fade editor during theme swap
+  editorPane.style.transition = "opacity 0.15s ease";
+  editorPane.style.opacity = "0.6";
+  requestAnimationFrame(() => {
+    // Swap CodeMirror theme
+    editor.dispatch({
+      effects: themeCompartment.reconfigure(entry.extension),
+    });
 
-  // Re-render markmap with new colors
-  applyMarkmapTheme();
-  const md = editor.state.doc.toString();
-  updateMarkmap(md);
+    // Re-render markmap with new colors
+    applyMarkmapTheme();
+    const md = editor.state.doc.toString();
+    updateMarkmap(md);
+
+    requestAnimationFrame(() => {
+      editorPane.style.opacity = "1";
+      editorPane.addEventListener("transitionend", () => {
+        editorPane.style.transition = "";
+      }, { once: true });
+    });
+  });
 
   // Sync the theme picker select
   const picker = document.getElementById("theme-picker") as HTMLSelectElement;

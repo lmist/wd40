@@ -3,10 +3,10 @@ import { getThemeById, applyChromeColors, THEMES, ChromeColors } from "./themes"
 
 describe("getThemeById", () => {
   it("returns the correct theme for a valid ID", () => {
-    const theme = getThemeById("dracula");
+    const theme = getThemeById("wd40-dusk");
     expect(theme).toBeDefined();
-    expect(theme!.id).toBe("dracula");
-    expect(theme!.label).toBe("Dracula");
+    expect(theme!.id).toBe("wd40-dusk");
+    expect(theme!.label).toBe("wd40 Dusk");
     expect(theme!.isDark).toBe(true);
   });
 
@@ -70,7 +70,7 @@ describe("applyChromeColors", () => {
   });
 
   it("works with a real theme's chrome colors", () => {
-    const theme = getThemeById("nord");
+    const theme = getThemeById("wd40-light");
     expect(theme).toBeDefined();
 
     applyChromeColors(theme!.chrome);

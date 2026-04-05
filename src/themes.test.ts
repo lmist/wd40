@@ -41,6 +41,7 @@ describe("applyChromeColors", () => {
       accentHover: "rgba(255, 0, 0, 0.2)",
       accentSecondary: "#00ff00",
       border: "#444444",
+      borderSubtle: "#454545",
       statusbarBg: "#555555",
       toolbarBg: "#666666",
       toolbarBorder: "#777777",
@@ -68,6 +69,7 @@ describe("applyChromeColors", () => {
     expect(style.getPropertyValue("--accent-hover")).toBe("rgba(255, 0, 0, 0.2)");
     expect(style.getPropertyValue("--accent-secondary")).toBe("#00ff00");
     expect(style.getPropertyValue("--border")).toBe("#444444");
+    expect(style.getPropertyValue("--border-subtle")).toBe("#454545");
     expect(style.getPropertyValue("--statusbar-bg")).toBe("#555555");
     expect(style.getPropertyValue("--toolbar-bg")).toBe("#666666");
     expect(style.getPropertyValue("--toolbar-border")).toBe("#777777");

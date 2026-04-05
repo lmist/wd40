@@ -8,7 +8,22 @@
     <script type="module" src="/src/main.ts" defer></script>
   </head>
   <body>
-    <div id="tab-bar"></div>
+    <div id="titlebar">
+      <div class="titlebar-brand" aria-hidden="true">
+        <span class="titlebar-brand-dot"></span>
+        <span class="titlebar-brand-name">wd40</span>
+      </div>
+      <div id="tab-bar"></div>
+      <div class="titlebar-actions">
+        <span id="titlebar-map-summary">1 map open</span>
+        <button id="btn-new-tab" title="New map (`c)">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M8 3v10M3 8h10" />
+          </svg>
+          New Map
+        </button>
+      </div>
+    </div>
     <div id="app">
       <div id="editor-pane"></div>
       <div id="divider"></div>
@@ -58,6 +73,7 @@
       <span id="file-name">untitled.md</span>
       <span class="statusbar-spacer"></span>
       <select id="theme-picker" title="Color theme"></select>
+      <select id="editor-style-picker" title="Editor style"></select>
       <select id="font-picker" title="Monospace font"></select>
       <label id="vim-toggle-label" class="statusbar-toggle" title="Toggle Vim mode">
         <input type="checkbox" id="vim-toggle" checked />
@@ -85,6 +101,7 @@
             <div class="shortcut-row"><span class="shortcut-label">Toggle focus pane</span><span class="shortcut-keys"><kbd>`</kbd> <kbd>z</kbd></span></div>
             <div class="shortcut-row"><span class="shortcut-label">Balance panes 50/50</span><span class="shortcut-keys"><kbd>`</kbd> <kbd>b</kbd></span></div>
             <div class="shortcut-row"><span class="shortcut-label">New tab</span><span class="shortcut-keys"><kbd>`</kbd> <kbd>c</kbd></span></div>
+            <div class="shortcut-row"><span class="shortcut-label">Previous map</span><span class="shortcut-keys"><kbd>`</kbd> <kbd>`</kbd></span></div>
             <div class="shortcut-row"><span class="shortcut-label">Fit mindmap</span><span class="shortcut-keys"><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>F</kbd></span></div>
 
             <h3 class="shortcuts-section">Resize</h3>

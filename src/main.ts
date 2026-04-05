@@ -10,6 +10,8 @@ import { zoomTransform } from "d3-zoom";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { initFonts, setFont, getSavedFont, getFontNames } from "./fonts";
+import { EDITOR_STYLES, applyEditorStyleTokens, getEditorStyleById, EditorStyleEntry } from "./editor-styles";
+import { rememberPreviousMap, swapToPreviousMap } from "./map-history";
 import { THEMES, getThemeById, applyChromeColors, ThemeEntry } from "./themes";
 import { indentedTextToMarkdown, markdownToIndentedText } from "./transform";
 import { outlinerKeymap, setClimbCallbacks, isClimbing, endClimb, handleClimbDigit } from "./outliner";
@@ -73,6 +75,23 @@ function getInitialThemeEntry(): ThemeEntry {
 let currentThemeEntry = getInitialThemeEntry();
 document.documentElement.setAttribute("data-theme", currentThemeEntry.isDark ? "dark" : "light");
 applyChromeColors(currentThemeEntry.chrome);
+
+function getInitialEditorStyleEntry(): EditorStyleEntry {
+  const savedId = localStorage.getItem("editor-style-id");
+  if (savedId) {
+    const found = getEditorStyleById(savedId);
+    if (found) return found;
+  }
+  return EDITOR_STYLES[0];
+}
+
+let currentEditorStyleEntry = getInitialEditorStyleEntry();
+document.documentElement.setAttribute("data-editor-style", currentEditorStyleEntry.id);
+applyEditorStyleTokens(currentEditorStyleEntry.tokens);
+
+function currentEditorAppearance() {
+  return [currentThemeEntry.extension, currentEditorStyleEntry.extension];
+}
 
 // --- Markmap setup ---
 const transformer = new Transformer();
@@ -147,7 +166,7 @@ function toggleShortcutsModal() {
 
 // --- Editor setup ---
 const editorPane = document.getElementById("editor-pane")!;
-const themeCompartment = new Compartment();
+const appearanceCompartment = new Compartment();
 const vimCompartment = new Compartment();
 const lineNumbersCompartment = new Compartment();
 
@@ -175,7 +194,7 @@ const editor = new EditorView({
       highlightActiveLineGutter(),
       history(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-      themeCompartment.of(currentThemeEntry.extension),
+      appearanceCompartment.of(currentEditorAppearance()),
       highlightSelectionMatches(),
       outlinerKeymap,
       keymap.of([
@@ -269,25 +288,32 @@ try {
 } catch (_) {}
 
 // --- Tab bar rendering ---
+const titlebar = document.getElementById("titlebar")!;
 const tabBar = document.getElementById("tab-bar")!;
+const titlebarMapSummaryEl = document.getElementById("titlebar-map-summary")!;
 const fileNameEl = document.getElementById("file-name")!;
-const appWindow = getCurrentWindow();
+const appWindow = "__TAURI_INTERNALS__" in window ? getCurrentWindow() : null;
+let previousTabId = "";
 
-function isTabBarButtonTarget(target: EventTarget | null): boolean {
-  return target instanceof HTMLElement && target.closest("#tab-bar button") !== null;
+function isTitlebarInteractiveTarget(target: EventTarget | null): boolean {
+  return target instanceof HTMLElement && target.closest("#titlebar button") !== null;
 }
 
-tabBar.addEventListener("mousedown", (event) => {
-  if (event.button !== 0 || isTabBarButtonTarget(event.target)) return;
+titlebar.addEventListener("mousedown", (event) => {
+  if (event.button !== 0 || isTitlebarInteractiveTarget(event.target)) return;
   event.preventDefault();
-  void appWindow.startDragging().catch(() => {});
+  void appWindow?.startDragging().catch(() => {});
 });
 
-tabBar.addEventListener("dblclick", (event) => {
-  if (isTabBarButtonTarget(event.target)) return;
+titlebar.addEventListener("dblclick", (event) => {
+  if (isTitlebarInteractiveTarget(event.target)) return;
   event.preventDefault();
-  void appWindow.toggleMaximize().catch(() => {});
+  void appWindow?.toggleMaximize().catch(() => {});
 });
+
+function updateTitlebarSummary() {
+  titlebarMapSummaryEl.textContent = tabs.length === 1 ? "1 map open" : `${tabs.length} maps open`;
+}
 
 function renderTabBar() {
   tabBar.innerHTML = "";
@@ -298,10 +324,14 @@ function renderTabBar() {
     btn.addEventListener("click", () => switchTab(tab.id));
     tabBar.appendChild(btn);
   }
+  updateTitlebarSummary();
 }
 
-function switchTab(id: string) {
+function switchTab(id: string, options?: { preservePrevious?: boolean }) {
   if (id === activeTabId) return;
+  if (!options?.preservePrevious) {
+    previousTabId = rememberPreviousMap(activeTabId, id, previousTabId);
+  }
   // Save current content
   const current = tabs.find(t => t.id === activeTabId);
   if (current) current.content = editor.state.doc.toString();
@@ -335,6 +365,7 @@ function createNewTab() {
   if (current) current.content = editor.state.doc.toString();
   const name = uniqueTabName(tabs.map(t => t.name));
   const tab: Tab = { id: crypto.randomUUID(), name, content: name + "\n" };
+  previousTabId = rememberPreviousMap(activeTabId, tab.id, previousTabId);
   tabs.push(tab);
   activeTabId = tab.id;
   editor.dispatch({
@@ -344,6 +375,13 @@ function createNewTab() {
   fileNameEl.textContent = tab.name;
   renderTabBar();
   editor.focus();
+}
+
+function goToPreviousMap() {
+  const next = swapToPreviousMap(activeTabId, previousTabId);
+  if (!next) return;
+  previousTabId = next.previousMapId;
+  switchTab(next.activeMapId, { preservePrevious: true });
 }
 
 // Initialize first tab
@@ -469,8 +507,10 @@ function enterResizeMode(initialDelta: number) {
 (Vim as any).defineAction("balancePanes", () => balancePanes());
 (Vim as any).defineAction("shrinkPane", () => enterResizeMode(-60));
 (Vim as any).defineAction("expandPane", () => enterResizeMode(60));
+(Vim as any).defineAction("previousMap", () => goToPreviousMap());
 
 (Vim as any).mapCommand("`c", "action", "newTab", {}, { context: "normal" });
+(Vim as any).mapCommand("``", "action", "previousMap", {}, { context: "normal" });
 (Vim as any).mapCommand("`z", "action", "focusPane", {}, { context: "normal" });
 (Vim as any).mapCommand("`b", "action", "balancePanes", {}, { context: "normal" });
 (Vim as any).mapCommand("`h", "action", "shrinkPane", {}, { context: "normal" });
@@ -757,7 +797,7 @@ function setThemeById(id: string) {
   requestAnimationFrame(() => {
     // Swap CodeMirror theme
     editor.dispatch({
-      effects: themeCompartment.reconfigure(entry.extension),
+      effects: appearanceCompartment.reconfigure(currentEditorAppearance()),
     });
 
     // Re-render markmap with new colors
@@ -778,12 +818,43 @@ function setThemeById(id: string) {
   if (picker.value !== id) picker.value = id;
 }
 
+function setEditorStyleById(id: string) {
+  const entry = getEditorStyleById(id);
+  if (!entry) return;
+
+  currentEditorStyleEntry = entry;
+  localStorage.setItem("editor-style-id", id);
+  document.documentElement.setAttribute("data-editor-style", entry.id);
+  applyEditorStyleTokens(entry.tokens);
+
+  editorPane.style.transition = "opacity 0.15s ease";
+  editorPane.style.opacity = "0.72";
+  requestAnimationFrame(() => {
+    editor.dispatch({
+      effects: appearanceCompartment.reconfigure(currentEditorAppearance()),
+    });
+
+    requestAnimationFrame(() => {
+      editorPane.style.opacity = "1";
+      editorPane.addEventListener("transitionend", () => {
+        editorPane.style.transition = "";
+      }, { once: true });
+    });
+  });
+
+  const picker = document.getElementById("editor-style-picker") as HTMLSelectElement;
+  if (picker.value !== id) picker.value = id;
+  editor.focus();
+}
+
 // Toggle button: cycle through all 3 themes
 document.getElementById("btn-theme")!.addEventListener("click", () => {
   const idx = THEMES.findIndex((t) => t.id === currentThemeEntry.id);
   const next = THEMES[(idx + 1) % THEMES.length];
   setThemeById(next.id);
 });
+
+document.getElementById("btn-new-tab")!.addEventListener("click", () => createNewTab());
 
 // --- Theme picker ---
 const themePicker = document.getElementById("theme-picker") as HTMLSelectElement;
@@ -798,6 +869,21 @@ for (const t of THEMES) {
 
 themePicker.addEventListener("change", () => {
   setThemeById(themePicker.value);
+});
+
+// --- Editor style picker ---
+const editorStylePicker = document.getElementById("editor-style-picker") as HTMLSelectElement;
+
+for (const style of EDITOR_STYLES) {
+  const opt = document.createElement("option");
+  opt.value = style.id;
+  opt.textContent = style.label;
+  if (style.id === currentEditorStyleEntry.id) opt.selected = true;
+  editorStylePicker.appendChild(opt);
+}
+
+editorStylePicker.addEventListener("change", () => {
+  setEditorStyleById(editorStylePicker.value);
 });
 
 // --- Font picker ---

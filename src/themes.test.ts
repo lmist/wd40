@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getThemeById, applyChromeColors, THEMES, ChromeColors } from "./themes";
+import { getThemeById, applyChromeColors, ChromeColors } from "./themes";
 
 describe("getThemeById", () => {
   it("returns the correct theme for a valid ID", () => {

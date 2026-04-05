@@ -16,8 +16,14 @@
         "title": "wd40",
         "width": 1200,
         "height": 800,
+        "acceptFirstMouse": true,
         "decorations": true,
-        "titleBarStyle": "Overlay"
+        "hiddenTitle": true,
+        "titleBarStyle": "Overlay",
+        "trafficLightPosition": {
+          "x": 16,
+          "y": 14
+        }
       }
     ],
     "security": {

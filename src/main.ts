@@ -1,4 +1,4 @@
-import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from "@codemirror/view";
+import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from "@codemirror/view";
 import { EditorState, Compartment } from "@codemirror/state";
 import { markdown } from "@codemirror/lang-markdown";
 import { defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
@@ -14,52 +14,12 @@ import { initFonts, setFont, getSavedFont, getFontNames } from "./fonts";
 import { headingMarkers } from "./heading-markers";
 import { THEMES, getThemeById, applyChromeColors, ThemeEntry } from "./themes";
 
-// --- Moby-style name generator ---
-const ADJECTIVES = [
-  "admiring", "adoring", "angry", "blissful", "bold", "boring", "brave",
-  "busy", "charming", "clever", "cool", "cranky", "dazzling", "determined",
-  "dreamy", "eager", "ecstatic", "elastic", "elated", "elegant", "epic",
-  "exciting", "fervent", "festive", "focused", "friendly", "frosty", "funny",
-  "gallant", "gifted", "goofy", "gracious", "happy", "hopeful", "hungry",
-  "infallible", "inspiring", "jolly", "keen", "kind", "laughing", "loving",
-  "lucid", "magical", "modest", "musing", "mystifying", "naughty", "nervous",
-  "nice", "nifty", "nostalgic", "objective", "optimistic", "peaceful",
-  "pedantic", "pensive", "practical", "priceless", "quirky", "quizzical",
-  "recursing", "relaxed", "reverent", "romantic", "serene", "sharp", "silly",
-  "sleepy", "stoic", "suspicious", "sweet", "tender", "thirsty", "trusting",
-  "unruffled", "upbeat", "vibrant", "vigilant", "vigorous", "wizardly",
-  "wonderful", "xenodochial", "youthful", "zealous", "zen",
-];
-
-const SCIENTISTS = [
-  "agnesi", "albattani", "archimedes", "babbage", "banach", "bell", "benz",
-  "bhabha", "blackwell", "bohr", "booth", "bose", "burnell", "cannon",
-  "carson", "cerf", "chatelet", "curie", "darwin", "davinci", "diffie",
-  "dijkstra", "driscoll", "edison", "einstein", "elion", "euler", "fermat",
-  "fermi", "feynman", "franklin", "gagarin", "galileo", "gates", "goldberg",
-  "goodall", "hawking", "heisenberg", "hopper", "hypatia", "jackson",
-  "jennings", "joliot", "kalam", "kepler", "kilby", "knuth", "lamport",
-  "leakey", "leavitt", "liskov", "lovelace", "matsumoto", "mayer",
-  "mccarthy", "meitner", "mendel", "mirzakhani", "morse", "nash", "neumann",
-  "newton", "nightingale", "nobel", "noether", "noyce", "panini", "pascal",
-  "pasteur", "payne", "perlman", "pike", "poincare", "ramanujan", "ride",
-  "ritchie", "roentgen", "rosalind", "rubin", "saha", "sammet", "shannon",
-  "shaw", "shirley", "sinoussi", "stonebraker", "sutherland", "swartz",
-  "tesla", "thompson", "torvalds", "turing", "villani", "wescoff", "wiles",
-  "williams", "wing", "wozniak", "wright", "yalow", "yonath",
-];
-
-function generateTabName(): string {
-  const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
-  const sci = SCIENTISTS[Math.floor(Math.random() * SCIENTISTS.length)];
-  return `${adj}_${sci}`;
-}
-
 function uniqueTabName(existing: string[]): string {
   const set = new Set(existing);
-  let name: string;
-  do { name = generateTabName(); } while (set.has(name));
-  return name;
+  if (!set.has("Untitled note")) return "Untitled note";
+  let index = 2;
+  while (set.has(`Untitled note ${index}`)) index += 1;
+  return `Untitled note ${index}`;
 }
 
 // --- Tab system ---
@@ -72,62 +32,18 @@ interface Tab {
 let tabs: Tab[] = [];
 let activeTabId = "";
 
-const INITIAL_MD = `# https://docs.oasis.camel-ai.org/introduction
-# Cheng Lou / Pretext
-# opencli
-# WASM & WASI
-# gstack
-# bank stmt, manage subscriptions
-# delete aws
-# Obsidian tweaking
-## https://github.com/jinzcdev/obsidian-markxmind
-   #    Translation
-## subtitling any youtube video to arabic so we can watch with momma
-## stt, translating
-# THUNDER
-# scrollback
-## a graphrag DOES exist
-### see [mirofish](https://deepwiki.com/666ghj/MiroFish/3.1-knowledge-graph-construction-(graphrag))
-### oss models
-### tagging sucks
-# HERMES
-## consider how model shifting should automatically happen based on the prompt
-## someone released a council of experts methodology to make agents disagree before agreeing
-### get them to create a strategy to make me popular on twitter
-## Deploying to Base
-### there's a video on twitter
-## this idea of segregation, concepts: workspace::agent:session?
-## sickest skill from hackathon: trimmer magic
-## it's own twitter
-## where else? virtuals?
-## bnb
-## security
-# MISC
-
-## skilljar
-### skill writing
-### then bedrock
-## karpathy
-### runpod
-## oss models
-### try in runpod
-### stt
-### tts
-### nemotron
-### kimi
-### minimax (new context breakthrough)
-### qwen
-## [money](https://github.com/FujiwaraChoki/MoneyPrinterV2/tree/main)
-## [mirofish](https://github.com/666ghj/MiroFish/tree/main)
-# read read read
-## Article from Sysls is always important
-## Williamson handbook is always important
-# GT
-## chemistry class
-## keep reading and reading and messing
-# cornelius / heinrich bro wtf
-## research specifically
-## how do we gracefully load into context by using a graph
+const INITIAL_MD = `# Welcome
+## Start with a simple heading
+### Each heading becomes a branch on the map
+### Use short phrases instead of long paragraphs
+## Try planning something familiar
+### Weekend dinner
+### Family trip
+### Study notes
+## A calm way to work
+### Write on the left
+### Scan the structure on the right
+### Adjust keyboard rules any time from Keyboard
 `;
 
 // --- Theme state ---
@@ -212,6 +128,7 @@ const editor = new EditorView({
     doc: INITIAL_MD,
     extensions: [
       vim(),
+      drawSelection(),
       lineNumbers(),
       highlightActiveLine(),
       highlightActiveLineGutter(),
@@ -240,19 +157,62 @@ const editor = new EditorView({
   parent: editorPane,
 });
 
+let currentVimMode = "normal";
+
+function formatVimModeLabel(mode: string, subMode?: string): string {
+  if (mode === "visual" && subMode === "linewise") return "Visual line";
+  if (mode === "visual" && subMode === "blockwise") return "Visual block";
+  return mode.charAt(0).toUpperCase() + mode.slice(1);
+}
+
+// The vim adapter reserves number keys as count prefixes before user maps run,
+// so force the shipped "1 -> $" behavior at the editor boundary.
+editor.dom.addEventListener("keydown", (event) => {
+  if (
+    currentVimMode !== "normal" ||
+    event.key !== "1" ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.altKey
+  ) {
+    return;
+  }
+  const cm = getCM(editor);
+  if (!cm) return;
+  event.preventDefault();
+  event.stopPropagation();
+  void (Vim as any).handleKey(cm, "$", "user");
+}, true);
+
 // Track vim mode changes
 try {
-  (Vim as any).on("vim-mode-change", (ev: { mode: string; subMode?: string }) => {
-    let mode = ev.mode;
-    if (mode === "visual" && ev.subMode === "linewise") mode = "v-line";
-    if (mode === "visual" && ev.subMode === "blockwise") mode = "v-block";
-    vimModeEl.textContent = mode.toUpperCase();
+  const cm = getCM(editor);
+  cm?.on("vim-mode-change", (ev: { mode: string; subMode?: string }) => {
+    currentVimMode = ev.mode;
+    vimModeEl.textContent = formatVimModeLabel(ev.mode, ev.subMode);
   });
 } catch (_) {}
 
 // --- Tab bar rendering ---
 const tabBar = document.getElementById("tab-bar")!;
 const fileNameEl = document.getElementById("file-name")!;
+const appWindow = getCurrentWindow();
+
+function isTabBarButtonTarget(target: EventTarget | null): boolean {
+  return target instanceof HTMLElement && target.closest("#tab-bar button") !== null;
+}
+
+tabBar.addEventListener("mousedown", (event) => {
+  if (event.button !== 0 || isTabBarButtonTarget(event.target)) return;
+  event.preventDefault();
+  void appWindow.startDragging().catch(() => {});
+});
+
+tabBar.addEventListener("dblclick", (event) => {
+  if (isTabBarButtonTarget(event.target)) return;
+  event.preventDefault();
+  void appWindow.toggleMaximize().catch(() => {});
+});
 
 function renderTabBar() {
   tabBar.innerHTML = "";
@@ -312,16 +272,12 @@ function createNewTab() {
 }
 
 // Initialize first tab
-const firstTab: Tab = { id: crypto.randomUUID(), name: uniqueTabName([]), content: INITIAL_MD };
+const firstTab: Tab = { id: crypto.randomUUID(), name: "Welcome note", content: INITIAL_MD };
 tabs.push(firstTab);
 activeTabId = firstTab.id;
 fileNameEl.textContent = firstTab.name;
 renderTabBar();
-
-// Double-click title bar to zoom (standard macOS behavior)
-tabBar.addEventListener("dblclick", () => {
-  getCurrentWindow().toggleMaximize();
-});
+vimModeEl.textContent = formatVimModeLabel(currentVimMode);
 
 // --- Active pane tracking ---
 let activePane: "editor" | "mindmap" = "editor";
@@ -447,9 +403,19 @@ function enterResizeMode(initialDelta: number) {
 
 // --- .vimrc support ---
 const VIMRC_KEY = "vimrc";
+const DEFAULT_VIMRC = [
+  "inoremap qw <Esc>",
+  "nnoremap ; :",
+  "vnoremap ; :",
+  "nnoremap 1 $",
+].join("\n");
+
+function getConfiguredVimrc() {
+  return localStorage.getItem(VIMRC_KEY) ?? DEFAULT_VIMRC;
+}
 
 function applyVimrc() {
-  const vimrc = localStorage.getItem(VIMRC_KEY) || "";
+  const vimrc = getConfiguredVimrc();
   const cm = getCM(editor);
   if (!cm) return;
   for (const raw of vimrc.split("\n")) {
@@ -471,7 +437,7 @@ const vimrcCloseBtn = document.getElementById("vimrc-close")!;
 const vimrcBtn = document.getElementById("btn-vimrc")!;
 
 function openVimrc() {
-  vimrcEditor.value = localStorage.getItem(VIMRC_KEY) || "";
+  vimrcEditor.value = getConfiguredVimrc();
   vimrcOverlay.classList.remove("hidden");
   vimrcEditor.focus();
 }

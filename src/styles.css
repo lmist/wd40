@@ -330,64 +330,105 @@ html, body {
   color: var(--fg);
 }
 
-/* Heading markers */
-.cm-heading-marker {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--mono-font);
-  font-weight: 700;
-  border-radius: 4px;
-  margin-right: 8px;
-  vertical-align: baseline;
-  line-height: 1;
-  letter-spacing: 0.3px;
-}
-
-.cm-heading-marker-1 {
-  font-size: 11px;
-  padding: 2px 8px;
+/* Level HUD — climbing indicator */
+.level-hud {
+  display: none;
+  position: fixed;
+  z-index: 200;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
   background: var(--accent);
   color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 22px;
+  text-align: center;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: opacity 80ms ease, transform 120ms ease-out;
 }
 
-.cm-heading-marker-2 {
+.level-hud-visible {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+  animation: hud-in 120ms ease-out;
+}
+
+.level-hud-hidden {
+  display: block;
+  opacity: 0;
+  transform: translateY(-2px);
+}
+
+.level-hud-tick {
+  opacity: 0.6;
+}
+
+@keyframes hud-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Vim toggle in statusbar */
+.statusbar-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.statusbar-toggle input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 28px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--fg-dim);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  flex-shrink: 0;
+}
+
+.statusbar-toggle input[type="checkbox"]::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.15s ease;
+}
+
+.statusbar-toggle input[type="checkbox"]:checked {
+  background: var(--accent);
+}
+
+.statusbar-toggle input[type="checkbox"]:checked::after {
+  transform: translateX(12px);
+}
+
+.toggle-label {
   font-size: 10px;
-  padding: 2px 8px;
-  background: var(--accent-dim);
-  color: var(--accent);
-  border: 1px solid currentColor;
-}
-
-.cm-heading-marker-3 {
-  font-size: 11px;
-  padding: 2px 4px;
-  background: var(--accent-dim);
   color: var(--fg-dim);
-}
-
-.cm-heading-marker-4 {
-  font-size: 11px;
-  padding: 2px 4px;
-  background: transparent;
-  color: var(--fg-dim);
-  opacity: 0.7;
-}
-
-.cm-heading-marker-5 {
-  font-size: 11px;
-  padding: 2px 4px;
-  background: transparent;
-  color: var(--fg-dim);
-  opacity: 0.5;
-}
-
-.cm-heading-marker-6 {
-  font-size: 11px;
-  padding: 2px 4px;
-  background: transparent;
-  color: var(--fg-dim);
-  opacity: 0.4;
+  font-weight: 500;
 }
 
 /* CodeMirror */

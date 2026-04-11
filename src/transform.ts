@@ -13,6 +13,17 @@
 
 const MAX_LEVEL = 6;
 
+export function markdownHeadingToIndentedLine(line: string): string | null {
+  const headingMatch = line.match(/^(#{1,})\s+(.*)$/);
+  if (!headingMatch) return null;
+
+  const level = Math.min(headingMatch[1].length, MAX_LEVEL);
+  const content = headingMatch[2];
+  const indent = "  ".repeat(level - 1);
+
+  return `${indent}${content}`;
+}
+
 export function indentToLevel(spaces: number): number {
   const level = Math.floor(spaces / 2) + 1;
   return Math.min(level, MAX_LEVEL);
@@ -52,15 +63,7 @@ export function markdownToIndentedText(md: string): string {
   const result: string[] = [];
 
   for (const line of lines) {
-    const headingMatch = line.match(/^(#{1,6})\s+(.*)/);
-    if (headingMatch) {
-      const level = headingMatch[1].length;
-      const content = headingMatch[2];
-      const indent = "  ".repeat(level - 1);
-      result.push(`${indent}${content}`);
-    } else {
-      result.push(line);
-    }
+    result.push(markdownHeadingToIndentedLine(line) ?? line);
   }
 
   return result.join("\n");

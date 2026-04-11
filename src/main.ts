@@ -12,6 +12,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { initFonts, setFont, getSavedFont, getFontNames } from "./fonts";
 import { EDITOR_STYLES, applyEditorStyleTokens, getEditorStyleById, EditorStyleEntry } from "./editor-styles";
 import { headingMarkers } from "./heading-markers";
+import { markdownHeadingInput } from "./markdown-heading-input";
 import { rememberPreviousMap, swapToPreviousMap } from "./map-history";
 import { THEMES, getThemeById, applyChromeColors, ThemeEntry } from "./themes";
 import { indentedTextToMarkdown, markdownToIndentedText } from "./transform";
@@ -54,7 +55,7 @@ const INITIAL_CONTENT = `Welcome
 export function migrateContent(content: string): string {
   // If any non-empty line starts with #, treat as legacy markdown
   const lines = content.split("\n");
-  const hasHeadings = lines.some(l => /^#{1,6}\s/.test(l));
+  const hasHeadings = lines.some(l => /^#+\s/.test(l));
   if (hasHeadings) {
     return markdownToIndentedText(content);
   }
@@ -197,6 +198,7 @@ const editor = new EditorView({
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       appearanceCompartment.of(currentEditorAppearance()),
       headingMarkers,
+      markdownHeadingInput,
       highlightSelectionMatches(),
       outlinerKeymap,
       keymap.of([

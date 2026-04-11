@@ -100,6 +100,12 @@ describe("markdownToIndentedText", () => {
     expect(markdownToIndentedText("# Hello")).toBe("Hello");
   });
 
+  it("accepts headings without a space after the hashes", () => {
+    const input = "#Oslo\n####Quito";
+    const expected = "Oslo\n      Quito";
+    expect(markdownToIndentedText(input)).toBe(expected);
+  });
+
   it("converts heading hierarchy to indentation", () => {
     const input = "# Marketing\n## Website\n## SEO\n# Engineering";
     const expected = "Marketing\n  Website\n  SEO\nEngineering";
@@ -127,6 +133,11 @@ describe("markdownToIndentedText", () => {
   it("roundtrips: markdown → indented → markdown", () => {
     const md = "# A\n## B\n### C\n## D\n# E";
     expect(indentedTextToMarkdown(markdownToIndentedText(md))).toBe(md);
+  });
+
+  it("normalizes no-space markdown headings on roundtrip", () => {
+    const md = "#Oslo\n####Quito";
+    expect(indentedTextToMarkdown(markdownToIndentedText(md))).toBe("# Oslo\n#### Quito");
   });
 
   it("roundtrips: indented → markdown → indented", () => {

@@ -43,6 +43,19 @@ describe("markdownHeadingInput", () => {
     expect(view.state.doc.toString()).toBe("Osaka\n  Kyoto\n    Lima");
   });
 
+  it("converts pasted markdown headings without a space after the hashes", () => {
+    const view = mountEditor();
+
+    view.dispatch({
+      changes: {
+        from: 0,
+        insert: "#Oslo\n####Quito",
+      },
+    });
+
+    expect(view.state.doc.toString()).toBe("Oslo\n      Quito");
+  });
+
   it("converts a line-start heading into outliner text", () => {
     const view = mountEditor();
 

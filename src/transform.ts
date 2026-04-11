@@ -12,13 +12,14 @@
  */
 
 const MAX_LEVEL = 6;
+const MARKDOWN_HEADING_PATTERN = /^(#{1,})(?:\s+(.*)|(\S.*))$/;
 
 export function markdownHeadingToIndentedLine(line: string): string | null {
-  const headingMatch = line.match(/^(#{1,})\s+(.*)$/);
+  const headingMatch = line.match(MARKDOWN_HEADING_PATTERN);
   if (!headingMatch) return null;
 
   const level = Math.min(headingMatch[1].length, MAX_LEVEL);
-  const content = headingMatch[2];
+  const content = headingMatch[2] ?? headingMatch[3] ?? "";
   const indent = "  ".repeat(level - 1);
 
   return `${indent}${content}`;

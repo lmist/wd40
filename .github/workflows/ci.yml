@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v1
+        with:
+          version: 0.13.0
+
+      - name: Build wd40
+        run: zig build -Doptimize=ReleaseFast
+
+      - name: Check binary exists
+        run: test -f zig-out/bin/wd40 && file zig-out/bin/wd40
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t wd40:test .
+
+      - name: Run proof of concept
+        run: docker run --rm wd40:test 2>&1 | grep -q "MISSION ACCOMPLISHED"

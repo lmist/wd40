@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -t wd40:test .
+        run: docker build -f dockerfile -t wd40:test .
 
       - name: Run proof of concept
         run: docker run --rm wd40:test 2>&1 | grep -q "MISSION ACCOMPLISHED"

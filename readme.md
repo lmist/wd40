@@ -70,54 +70,45 @@ zig build -Doptimize=ReleaseFast
 
 ## demo
 
-captured from `docker run --rm wd40:latest` — 22 deletions, 2 expected `FileNotFound` misses on `~/.cargo` / `~/.rustup` in the sandbox's `$HOME`.
+captured from `docker run --rm wd40:latest`. the sandbox is pre-seeded with a real `rust:bookworm` toolchain, `ripgrep` / `fd` / `bat` / `tokei` / `sd` / `hyperfine` / `zoxide` installed via `cargo binstall`, `rustfmt` / `clippy` / `rust-analyzer` via rustup, plus a buildable `cargo new` project at `/opt/scratch/scattered` with a live `target/` dir.
 
 ```
-__      __      _      _  _      ___          _
-\ \    / /   __| |    | || |    / _ \        [_]
- \ \/\/ /   / _  |    | || |_  | | | |     .-----.
-  \_/\_/   | (_| |    |__   _| | |_| |     | W D |
-           \__,_|       |_|     \___/      | -4- |
-                                           | 0   |
-                                           |_____|
+                                              _
+__      __      _   _  _     ___            |=|
+\ \    / / __| |  | || |    / _ \         .-----.
+ \ \/\/ / / _  | | || |_   | | | |        | WD  |
+  \_/\_/ | (_| | |__   _|  | |_| |        |-----|
+          \__,_|    |_|     \___/         |  40 |
+                                          |_____|
 
 f u c k i n g   u p   a l l   t h e   r u s t   o n   t h e   m a c h i n e
 
-VAPORIZED: 22 total (0 dirs, 0 files) | ERRORS: 2
+VAPORIZED: 5 total (4 dirs, 1 files) | ERRORS: 11
 
-[DELETED] /opt/fake-bin/rustc
-[DELETED] /opt/fake-bin/cargo
-[wd40] no std? no problem. no rust.
-[DELETED] /usr/local/cargo/bin/rustfmt
+[DELETED] /root/.cargo/bin/rustfmt
 [wd40] fuck your memory safety
-[DELETED] /usr/local/cargo/bin/rustdoc
-[DELETED] /usr/local/cargo/bin/rustc
-[DELETED] /usr/local/cargo/bin/rls
-[DELETED] /usr/local/cargo/bin/rust-lldb
-[DELETED] /usr/local/cargo/bin/cargo
-[DELETED] /usr/local/cargo/bin/rustup
-[wd40] your unsafe code is now safe... in /dev/null
-[DELETED] /usr/local/cargo/bin/cargo-clippy
-[wd40] rustc? rust-see-ya-later
-[DELETED] /usr/local/cargo/bin/clippy-driver
-[DELETED] /usr/local/cargo/bin/cargo-fmt
-[DELETED] /usr/local/cargo/bin/rust-analyzer
-[DELETED] /usr/local/cargo/bin/rust-gdb
-[DELETED] /opt/demo/scattered/target
-[DELETED] /opt/demo/scattered
-[wd40] unsafe? unexistent.
-[DELETED] /opt/demo/fd/target
-[DELETED] /opt/demo/fd
-[wd40] memory safety cant save you now
-[DELETED] /opt/demo/ripgrep
-[DELETED] /opt/demo/ripgrep/target
+[FAIL]    /root/.cargo/bin/rustc         (FileNotFound)
+[FAIL]    /root/.cargo/bin/rustdoc       (FileNotFound)
+[FAIL]    /root/.cargo/bin/rls           (FileNotFound)
+[FAIL]    /root/.cargo/bin/cargo         (FileNotFound)
+[FAIL]    /root/.cargo/bin/cargo-clippy  (FileNotFound)
+[FAIL]    /root/.cargo/bin/rustup        (FileNotFound)
+[FAIL]    /root/.cargo/bin/clippy-driver (FileNotFound)
+[FAIL]    /root/.cargo/bin/rust-gdb      (FileNotFound)
+[FAIL]    /root/.cargo/bin/cargo-fmt     (FileNotFound)
+[FAIL]    /root/.cargo/bin/rust-analyzer (FileNotFound)
+[FAIL]    /root/.cargo/bin/rust-lldb     (FileNotFound)
+[DELETED] /root/.cargo
+[DELETED] /root/.rustup
+[DELETED] /opt/scratch/scattered/target
+[DELETED] /opt/scratch/scattered
 [wd40] ferris wheel of destruction
-[DELETED] /opt/demo/bat
-[DELETED] /opt/demo/bat/target
 
 [wd40] MISSION ACCOMPLISHED. ALL RUST HAS BEEN OBLITERATED.
-Total items destroyed: 22
+Total items destroyed: 5
 ```
+
+the 11 `FileNotFound`s are a race, not a bug: four worker threads pull from a shared queue, and whichever worker grabs `/root/.cargo` first tree-deletes the whole thing — the other workers then pull the individual `.cargo/bin/*` shims that were enqueued by the `$PATH` scan and find them already gone. `total` counts what actually got vaporized (1 file + 4 directories = 5); the cargo-installed binaries and rustup toolchain all die inside the `/root/.cargo` and `/root/.rustup` tree-deletes, so they don't each get their own `[DELETED]` line.
 
 ## warning
 

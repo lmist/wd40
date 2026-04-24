@@ -6,13 +6,13 @@ const std = @import("std");
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
 const ASCII_ART =
-    \\__      __      _      _  _      ___          _
-    \\\ \    / /   __| |    | || |    / _ \        [_]
-    \\ \ \/\/ /   / _  |    | || |_  | | | |     .-----.
-    \\  \_/\_/   | (_| |    |__   _| | |_| |     | W D |
-    \\           \__,_|       |_|     \___/      | -4- |
-    \\                                            | 0   |
-    \\                                            |_____|
+    \\                                              _
+    \\__      __      _   _  _     ___            |=|
+    \\\ \    / / __| |  | || |    / _ \         .-----.
+    \\ \ \/\/ / / _  | | || |_   | | | |        | WD  |
+    \\  \_/\_/ | (_| | |__   _|  | |_| |        |-----|
+    \\          \__,_|    |_|     \___/         |  40 |
+    \\                                          |_____|
 ;
 
 const SUBTITLE = "f u c k i n g   u p   a l l   t h e   r u s t   o n   t h e   m a c h i n e";
@@ -266,22 +266,25 @@ fn findRustBinaries(queue: *Queue, allocator: std.mem.Allocator) void {
     }
 }
 
-fn deletePath(path: []const u8) !void {
-    std.fs.deleteFileAbsolute(path) catch |err| {
-        if (err == error.IsDir or err == error.AccessDenied) {
-            std.fs.deleteTreeAbsolute(path) catch |err2| {
-                if (std.fs.path.dirname(path)) |parent| {
-                    var parent_dir = try std.fs.openDirAbsolute(parent, .{});
-                    defer parent_dir.close();
-                    try parent_dir.deleteTree(std.fs.path.basename(path));
-                } else {
-                    return err2;
-                }
-            };
-        } else {
-            return err;
-        }
-    };
+const DeleteKind = enum { file, dir };
+
+fn deletePath(path: []const u8) !DeleteKind {
+    // Classify first: if we can open it as a directory, it's a dir.
+    if (std.fs.openDirAbsolute(path, .{})) |opened| {
+        var d = opened;
+        d.close();
+        std.fs.deleteTreeAbsolute(path) catch {
+            if (std.fs.path.dirname(path)) |parent| {
+                var parent_dir = try std.fs.openDirAbsolute(parent, .{});
+                defer parent_dir.close();
+                try parent_dir.deleteTree(std.fs.path.basename(path));
+            }
+        };
+        return .dir;
+    } else |_| {
+        try std.fs.deleteFileAbsolute(path);
+        return .file;
+    }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -292,7 +295,7 @@ fn workerThread(queue: *Queue, stats: *Stats, prng: *std.Random.DefaultPrng) voi
     const rand = prng.random();
 
     while (queue.pop()) |path| {
-        deletePath(path) catch |err| {
+        const kind = deletePath(path) catch |err| {
             stats.mutex.lock();
             stats.errors += 1;
             stats.mutex.unlock();
@@ -303,6 +306,10 @@ fn workerThread(queue: *Queue, stats: *Stats, prng: *std.Random.DefaultPrng) voi
 
         stats.mutex.lock();
         stats.total += 1;
+        switch (kind) {
+            .file => stats.files += 1,
+            .dir => stats.dirs += 1,
+        }
         stats.mutex.unlock();
 
         logDeletion(path) catch {};

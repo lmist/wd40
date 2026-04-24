@@ -73,25 +73,24 @@ zig build -Doptimize=ReleaseFast
 captured from `docker run --rm wd40:latest`. the sandbox is pre-seeded with a real `rust:bookworm` toolchain, `ripgrep` / `fd` / `bat` / `tokei` / `sd` / `hyperfine` / `zoxide` installed via `cargo binstall`, `rustfmt` / `clippy` / `rust-analyzer` via rustup, plus a buildable `cargo new` project at `/opt/scratch/scattered` with a live `target/` dir.
 
 ```
-                                              _
-__      __      _   _  _     ___            |=|
-\ \    / / __| |  | || |    / _ \         .-----.
- \ \/\/ / / _  | | || |_   | | | |        | WD  |
-  \_/\_/ | (_| | |__   _|  | |_| |        |-----|
-          \__,_|    |_|     \___/         |  40 |
-                                          |_____|
+██╗    ██╗██████╗ ██╗  ██╗ ██████╗
+██║    ██║██╔══██╗██║  ██║██╔═████╗
+██║ █╗ ██║██║  ██║███████║██║██╔██║
+██║███╗██║██║  ██║╚════██║████╔╝██║
+╚███╔███╔╝██████╔╝     ██║╚██████╔╝
+ ╚══╝╚══╝ ╚═════╝      ╚═╝ ╚═════╝
 
 f u c k i n g   u p   a l l   t h e   r u s t   o n   t h e   m a c h i n e
 
 VAPORIZED: 6 total (4 dirs, 2 files) | ERRORS: 0
 
-[DELETED] /root/.cargo/bin/rustc
 [DELETED] /root/.cargo/bin/rustdoc
+[DELETED] /root/.cargo/bin/rls
 [DELETED] /root/.cargo
+[wd40]    fuck your memory safety
 [DELETED] /root/.rustup
 [DELETED] /opt/scratch/scattered/target
 [DELETED] /opt/scratch/scattered
-[wd40] your unsafe code is now safe... in /dev/null
 
 [wd40] MISSION ACCOMPLISHED. ALL RUST HAS BEEN OBLITERATED.
 Total items destroyed: 6

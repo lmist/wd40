@@ -26,6 +26,36 @@ no prompts. no `--force` flags. no survivors.
 
 > *"i don't fix Rust. i delete it."* — ziggy the annihilator
 
+## demo
+
+captured from `docker run --rm wd40:latest`. the sandbox is pre-seeded with a real `rust:bookworm` toolchain, `ripgrep` / `fd` / `bat` / `tokei` / `sd` / `hyperfine` / `zoxide` installed via `cargo binstall`, `rustfmt` / `clippy` / `rust-analyzer` via rustup, plus a buildable `cargo new` project at `/opt/scratch/scattered` with a live `target/` dir.
+
+```
+██╗    ██╗██████╗ ██╗  ██╗ ██████╗
+██║    ██║██╔══██╗██║  ██║██╔═████╗
+██║ █╗ ██║██║  ██║███████║██║██╔██║
+██║███╗██║██║  ██║╚════██║████╔╝██║
+╚███╔███╔╝██████╔╝     ██║╚██████╔╝
+ ╚══╝╚══╝ ╚═════╝      ╚═╝ ╚═════╝
+
+f u c k i n g   u p   a l l   t h e   r u s t   o n   t h e   m a c h i n e
+
+VAPORIZED: 6 total (4 dirs, 2 files) | ERRORS: 0
+
+[DELETED] /root/.cargo/bin/rustdoc
+[DELETED] /root/.cargo/bin/rls
+[DELETED] /root/.cargo
+[wd40]    fuck your memory safety
+[DELETED] /root/.rustup
+[DELETED] /opt/scratch/scattered/target
+[DELETED] /opt/scratch/scattered
+
+[wd40] MISSION ACCOMPLISHED. ALL RUST HAS BEEN OBLITERATED.
+Total items destroyed: 6
+```
+
+four worker threads share a single deletion queue, so there's an inherent race between the `$PATH` scan (which enqueues individual `.cargo/bin/*` shims) and the recursive filesystem scan (which enqueues `/root/.cargo` as a whole tree). whichever worker grabs the tree first vaporizes everything under it, and when other workers later pop the now-orphaned shim paths, `deletePath` reports `.already_gone` — a silent no-op, not an error. `total` counts what actually got vaporized by *this* process.
+
 ## features
 
 - **terminal hijack**: clears the screen, hides the cursor, and splits the display into a static header (1/3) and a live scrolling log (2/3)
@@ -67,36 +97,6 @@ zig build -Doptimize=ReleaseFast
 | `Cargo.toml` dirs | entire project directories (source + build) |
 | `rustc`, `cargo`, `rustup`, etc. | Rust binaries found in `$PATH` |
 | `rustfmt`, `clippy-driver`, `rust-analyzer` | all the little friends too |
-
-## demo
-
-captured from `docker run --rm wd40:latest`. the sandbox is pre-seeded with a real `rust:bookworm` toolchain, `ripgrep` / `fd` / `bat` / `tokei` / `sd` / `hyperfine` / `zoxide` installed via `cargo binstall`, `rustfmt` / `clippy` / `rust-analyzer` via rustup, plus a buildable `cargo new` project at `/opt/scratch/scattered` with a live `target/` dir.
-
-```
-██╗    ██╗██████╗ ██╗  ██╗ ██████╗
-██║    ██║██╔══██╗██║  ██║██╔═████╗
-██║ █╗ ██║██║  ██║███████║██║██╔██║
-██║███╗██║██║  ██║╚════██║████╔╝██║
-╚███╔███╔╝██████╔╝     ██║╚██████╔╝
- ╚══╝╚══╝ ╚═════╝      ╚═╝ ╚═════╝
-
-f u c k i n g   u p   a l l   t h e   r u s t   o n   t h e   m a c h i n e
-
-VAPORIZED: 6 total (4 dirs, 2 files) | ERRORS: 0
-
-[DELETED] /root/.cargo/bin/rustdoc
-[DELETED] /root/.cargo/bin/rls
-[DELETED] /root/.cargo
-[wd40]    fuck your memory safety
-[DELETED] /root/.rustup
-[DELETED] /opt/scratch/scattered/target
-[DELETED] /opt/scratch/scattered
-
-[wd40] MISSION ACCOMPLISHED. ALL RUST HAS BEEN OBLITERATED.
-Total items destroyed: 6
-```
-
-four worker threads share a single deletion queue, so there's an inherent race between the `$PATH` scan (which enqueues individual `.cargo/bin/*` shims) and the recursive filesystem scan (which enqueues `/root/.cargo` as a whole tree). whichever worker grabs the tree first vaporizes everything under it, and when other workers later pop the now-orphaned shim paths, `deletePath` reports `.already_gone` — a silent no-op, not an error. `total` counts what actually got vaporized by *this* process.
 
 ## warning
 

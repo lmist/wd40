@@ -266,7 +266,7 @@ fn findRustBinaries(queue: *Queue, allocator: std.mem.Allocator) void {
     }
 }
 
-const DeleteKind = enum { file, dir };
+const DeleteKind = enum { file, dir, already_gone };
 
 fn deletePath(path: []const u8) !DeleteKind {
     // Classify first: if we can open it as a directory, it's a dir.
@@ -275,14 +275,25 @@ fn deletePath(path: []const u8) !DeleteKind {
         d.close();
         std.fs.deleteTreeAbsolute(path) catch {
             if (std.fs.path.dirname(path)) |parent| {
-                var parent_dir = try std.fs.openDirAbsolute(parent, .{});
+                var parent_dir = std.fs.openDirAbsolute(parent, .{}) catch |e| {
+                    if (e == error.FileNotFound) return .already_gone;
+                    return e;
+                };
                 defer parent_dir.close();
-                try parent_dir.deleteTree(std.fs.path.basename(path));
+                parent_dir.deleteTree(std.fs.path.basename(path)) catch |e| {
+                    if (e == error.FileNotFound) return .already_gone;
+                    return e;
+                };
             }
         };
         return .dir;
-    } else |_| {
-        try std.fs.deleteFileAbsolute(path);
+    } else |err| {
+        // Not a directory (or already vanished). Try as a file.
+        if (err == error.FileNotFound) return .already_gone;
+        std.fs.deleteFileAbsolute(path) catch |e| {
+            if (e == error.FileNotFound) return .already_gone;
+            return e;
+        };
         return .file;
     }
 }
@@ -304,11 +315,16 @@ fn workerThread(queue: *Queue, stats: *Stats, prng: *std.Random.DefaultPrng) voi
             continue;
         };
 
+        // Silent no-op: something else already vaporized it. Not a delete,
+        // not an error. Don't increment anything, don't spam the log.
+        if (kind == .already_gone) continue;
+
         stats.mutex.lock();
         stats.total += 1;
         switch (kind) {
             .file => stats.files += 1,
             .dir => stats.dirs += 1,
+            .already_gone => unreachable,
         }
         stats.mutex.unlock();
 

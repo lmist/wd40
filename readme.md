@@ -83,32 +83,21 @@ __      __      _   _  _     ___            |=|
 
 f u c k i n g   u p   a l l   t h e   r u s t   o n   t h e   m a c h i n e
 
-VAPORIZED: 5 total (4 dirs, 1 files) | ERRORS: 11
+VAPORIZED: 6 total (4 dirs, 2 files) | ERRORS: 0
 
-[DELETED] /root/.cargo/bin/rustfmt
-[wd40] fuck your memory safety
-[FAIL]    /root/.cargo/bin/rustc         (FileNotFound)
-[FAIL]    /root/.cargo/bin/rustdoc       (FileNotFound)
-[FAIL]    /root/.cargo/bin/rls           (FileNotFound)
-[FAIL]    /root/.cargo/bin/cargo         (FileNotFound)
-[FAIL]    /root/.cargo/bin/cargo-clippy  (FileNotFound)
-[FAIL]    /root/.cargo/bin/rustup        (FileNotFound)
-[FAIL]    /root/.cargo/bin/clippy-driver (FileNotFound)
-[FAIL]    /root/.cargo/bin/rust-gdb      (FileNotFound)
-[FAIL]    /root/.cargo/bin/cargo-fmt     (FileNotFound)
-[FAIL]    /root/.cargo/bin/rust-analyzer (FileNotFound)
-[FAIL]    /root/.cargo/bin/rust-lldb     (FileNotFound)
+[DELETED] /root/.cargo/bin/rustc
+[DELETED] /root/.cargo/bin/rustdoc
 [DELETED] /root/.cargo
 [DELETED] /root/.rustup
 [DELETED] /opt/scratch/scattered/target
 [DELETED] /opt/scratch/scattered
-[wd40] ferris wheel of destruction
+[wd40] your unsafe code is now safe... in /dev/null
 
 [wd40] MISSION ACCOMPLISHED. ALL RUST HAS BEEN OBLITERATED.
-Total items destroyed: 5
+Total items destroyed: 6
 ```
 
-the 11 `FileNotFound`s are a race, not a bug: four worker threads pull from a shared queue, and whichever worker grabs `/root/.cargo` first tree-deletes the whole thing — the other workers then pull the individual `.cargo/bin/*` shims that were enqueued by the `$PATH` scan and find them already gone. `total` counts what actually got vaporized (1 file + 4 directories = 5); the cargo-installed binaries and rustup toolchain all die inside the `/root/.cargo` and `/root/.rustup` tree-deletes, so they don't each get their own `[DELETED]` line.
+four worker threads share a single deletion queue, so there's an inherent race between the `$PATH` scan (which enqueues individual `.cargo/bin/*` shims) and the recursive filesystem scan (which enqueues `/root/.cargo` as a whole tree). whichever worker grabs the tree first vaporizes everything under it, and when other workers later pop the now-orphaned shim paths, `deletePath` reports `.already_gone` — a silent no-op, not an error. `total` counts what actually got vaporized by *this* process.
 
 ## warning
 
